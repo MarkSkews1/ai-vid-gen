@@ -1,6 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import {
+  RegisterLink,
+  LoginLink,
+} from '@kinde-oss/kinde-auth-nextjs/components';
 
 import {
   Menubar,
@@ -8,7 +12,6 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { ModeToggle } from './mode-toggle';
@@ -40,6 +43,8 @@ export default function TopNav() {
             <MenubarItem>Task2</MenubarItem>
           </MenubarContent>
           <ModeToggle />
+          <LoginLink postLoginRedirectURL='/dashboard'>Sign in</LoginLink>
+          <RegisterLink postLoginRedirectURL='/welcome'>Sign up</RegisterLink>
         </MenubarMenu>
       </div>
     </Menubar>
