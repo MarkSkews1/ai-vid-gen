@@ -50,9 +50,13 @@ export default function TopNav() {
             Dashboard
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem>Task1</MenubarItem>
+            <MenubarItem>
+              <Link href={'/dashboard'}>Go to Dashboard</Link>
+            </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem>Task2</MenubarItem>
+            <MenubarItem>
+              <Link href={'/dashboard/create-video'}>Create Video</Link>
+            </MenubarItem>
           </MenubarContent>
           <ModeToggle />
 
