@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { Audiowide } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { AuthProvider } from '@/AuthProvider';
 import TopNav from '@/components/ui/nav/top-nav';
+import { AuthProvider } from '@/AuthProvider';
+import { VideoProvider } from '@/context/video';
+import { Video } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -31,8 +33,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <TopNav />
-            {children}
+            <VideoProvider>
+              <TopNav />
+              {children}
+            </VideoProvider>
           </ThemeProvider>
         </body>
       </html>
