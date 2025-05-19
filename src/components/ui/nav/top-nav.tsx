@@ -44,7 +44,7 @@ export default function TopNav() {
           </MenubarContent>
           <ModeToggle />
           <LoginLink postLoginRedirectURL='/dashboard'>Sign in</LoginLink>
-          <RegisterLink postLoginRedirectURL='/dashboard'>Sign up</RegisterLink>
+          <RegisterLink postLoginRedirectURL='/login'>Sign up</RegisterLink>
         </MenubarMenu>
       </div>
     </Menubar>
