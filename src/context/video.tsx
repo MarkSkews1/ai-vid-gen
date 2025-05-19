@@ -60,3 +60,11 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     </VideoContext.Provider>
   );
 };
+
+export const useVideo = () => {
+  const context = useContext(VideoContext);
+  if (!context) {
+    throw new Error('useVideoContext must be used within a VideoProvider');
+  }
+  return context;
+};
