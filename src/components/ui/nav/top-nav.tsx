@@ -15,6 +15,7 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { ModeToggle } from './mode-toggle';
+import { LogoutButton } from './logout';
 
 export default function TopNav() {
   return (
@@ -41,10 +42,11 @@ export default function TopNav() {
             <MenubarItem>Task1</MenubarItem>
             <MenubarSeparator />
             <MenubarItem>Task2</MenubarItem>
-          </MenubarContent>
+          </MenubarContent>{' '}
           <ModeToggle />
           <LoginLink postLoginRedirectURL='/dashboard'>Sign in</LoginLink>
           <RegisterLink postLoginRedirectURL='/login'>Sign up</RegisterLink>
+          <LogoutButton />
         </MenubarMenu>
       </div>
     </Menubar>
