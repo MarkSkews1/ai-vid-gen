@@ -1,6 +1,6 @@
-import type { NextConfig } from 'next';
+/** @type {import('next').NextConfig} */
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   webpack: (config) => {
     config.resolve.fallback = {
@@ -13,4 +13,4 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@google/genai'],
 };
 
-export default nextConfig;
+module.exports = nextConfig;

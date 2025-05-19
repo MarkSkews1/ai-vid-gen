@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^0.15.0",
+    "@kinde-oss/kinde-auth-nextjs": "^2.6.2",
+    "@kinde/management-api-js": "^0.14.0",
     "@radix-ui/react-dropdown-menu": "^2.1.14",
     "@radix-ui/react-menubar": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.511.0",
+    "mime": "^4.0.7",
     "next": "15.3.2",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
@@ -24,7 +28,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.17.48",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

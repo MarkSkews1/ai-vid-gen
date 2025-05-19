@@ -10,32 +10,19 @@ export default function CreateVideoPage() {
   const [retryAfter, setRetryAfter] = useState<number | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // Effect to handle countdown timer
+  // Countdown timer for rate limit
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-
-    if (retryAfter && retryAfter > 0) {
-      setCountdown(retryAfter);
-
-      timer = setInterval(() => {
-        setCountdown((prevCountdown) => {
-          if (prevCountdown && prevCountdown > 1) {
-            return prevCountdown - 1;
-          } else {
-            // Reset retry states when countdown finishes
-            setRetryAfter(null);
-            setError(null);
-            return null;
-          }
-        });
+    if (retryAfter && countdown !== null && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
       }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      setRetryAfter(null);
+      setCountdown(null);
+      setError(null);
     }
-
-    // Cleanup interval on unmount or when retryAfter changes
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [retryAfter]);
+  }, [retryAfter, countdown]);
 
   const handleCreateVideo = async () => {
     setIsLoading(true);
@@ -58,26 +45,24 @@ export default function CreateVideoPage() {
       });
 
       const data = await response.json();
-
+      
       if (!response.ok) {
         // Check if this is a rate limit error
         if (response.status === 429 && data.isRateLimit) {
-          setRetryAfter(data.retryAfter || 60);
-          throw new Error(
-            `${data.error} Please try again in ${
-              data.retryAfter || 60
-            } seconds.`
-          );
+          const waitSeconds = data.retryAfter || 60;
+          setRetryAfter(waitSeconds);
+          setCountdown(waitSeconds);
+          throw new Error(`Rate limit reached. Please try again later.`);
         }
         throw new Error(data.error || 'Failed to generate video script');
       }
 
-      console.log('Generated scenes:', data.scenes); // Update application state with the generated scenes
+      console.log('Generated scenes:', data.scenes);
+
+      // Update application state with the generated scenes
       if (data.scenes && Array.isArray(data.scenes) && data.scenes.length > 0) {
         // Extract image prompts from scenes
-        const sceneImages = data.scenes.map(
-          (scene: { imagePrompt?: string }) => scene.imagePrompt || ''
-        );
+        const sceneImages = data.scenes.map((scene) => scene.imagePrompt || '');
 
         // Update the context with the new data
         setImages(sceneImages);
@@ -95,27 +80,29 @@ export default function CreateVideoPage() {
       setLoading(false);
     }
   };
+
   return (
     <div className='p-10'>
       <h1 className='text-2xl font-bold mb-5'>Create Video Page</h1>
       <div className='my-5'>
-        <Button
-          onClick={handleCreateVideo}
-          disabled={isLoading || countdown !== null}
+        <Button 
+          onClick={handleCreateVideo} 
+          disabled={isLoading || (retryAfter !== null)}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
-          {isLoading
-            ? 'Generating Video Script...'
-            : countdown
-            ? `Retry available in ${countdown}s`
-            : 'Generate Video'}
+          {isLoading 
+            ? 'Generating Video Script...' 
+            : countdown 
+              ? `Rate Limited (${countdown}s)` 
+              : 'Generate Video'}
         </Button>
 
         {error && (
           <div className='mt-4 p-4 bg-red-100 text-red-800 rounded-md'>
-            {error}
-            {countdown && (
-              <p className='mt-2 font-medium'>
-                Rate limit reached. You can try again in {countdown} seconds.
+            <p className="font-medium">{error}</p>
+            {retryAfter && countdown && (
+              <p className='mt-2'>
+                The API rate limit has been reached. Please wait {countdown} seconds before trying again.
               </p>
             )}
           </div>
@@ -123,7 +110,8 @@ export default function CreateVideoPage() {
 
         {!error && isLoading && (
           <div className='mt-4 p-4 bg-blue-50 text-blue-700 rounded-md'>
-            Generating video script... This may take a few seconds.
+            <p>Generating video script... This may take a few seconds.</p>
+            <p className="mt-2 text-sm">The AI model is creating scenes for your video.</p>
           </div>
         )}
       </div>

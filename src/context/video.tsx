@@ -2,17 +2,16 @@
 
 import {
   useState,
-  useEffect,
   createContext,
   useContext,
   Dispatch,
   SetStateAction,
   ReactNode,
-  ChangeEvent,
 } from 'react';
 
 const initialState = {
-  script: 'Script...',
+  script:
+    "Create a 30-SECOND long ADVENTURE STORY video script. Include AI image prompts in FANTASY FORMAT for each scene in realistic format. Return ONLY a valid JSON array where each object has 'imagePrompt' and 'textContent' fields. Do not include any explanations or markdown formatting.",
   images: [] as string[],
   audio: '',
   captions: [] as object[],
