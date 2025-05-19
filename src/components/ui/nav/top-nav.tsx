@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -5,6 +7,7 @@ import {
   RegisterLink,
   LoginLink,
 } from '@kinde-oss/kinde-auth-nextjs/components';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 
 import {
   Menubar,
@@ -15,9 +18,17 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { ModeToggle } from './mode-toggle';
-import { LogoutButton } from './logout';
+import { UserButton } from './user-button';
 
 export default function TopNav() {
+  const { user, isLoading } = useKindeBrowserClient();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Prevent hydration mismatch
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <Menubar className='flex items-center rounded-none h-14'>
       <div className='flex-none'>
@@ -42,11 +53,17 @@ export default function TopNav() {
             <MenubarItem>Task1</MenubarItem>
             <MenubarSeparator />
             <MenubarItem>Task2</MenubarItem>
-          </MenubarContent>{' '}
+          </MenubarContent>
           <ModeToggle />
-          <LoginLink postLoginRedirectURL='/dashboard'>Sign in</LoginLink>
-          <RegisterLink postLoginRedirectURL='/login'>Sign up</RegisterLink>
-          <LogoutButton />
+
+          {mounted && !isLoading && !user ? (
+            <>
+              <LoginLink postLoginRedirectURL='/dashboard'>Sign in</LoginLink>
+              <RegisterLink postLoginRedirectURL='/login'>Sign up</RegisterLink>
+            </>
+          ) : null}
+
+          {mounted && user ? <UserButton /> : null}
         </MenubarMenu>
       </div>
     </Menubar>
