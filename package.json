@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
+    "@kinde-oss/kinde-auth-nextjs": "^2.6.2",
+    "@kinde/management-api-js": "^0.14.0",
     "@radix-ui/react-dropdown-menu": "^2.1.14",
     "@radix-ui/react-menubar": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.2",
