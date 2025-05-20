@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       apiKey: apiKey,
     });
     const config = {
-      responseMimeType: 'text/plain',
+      responseMimeType: 'application/json',
     };
     const model = 'gemini-1.5-flash';
     const contents = [
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         role: 'user',
         parts: [
           {
-            text: script,
+            text: `Generate a JSON response for the following video script. Format the output as a valid JSON object with sections for 'title', 'scenes', and 'metadata'. Each scene should have the following fields: 'description', 'textContent' (containing the narration text), 'imagePrompt' (containing the visual description for image generation), 'visuals', and 'audio'. Here's the script: ${script}`,
           },
         ],
       },
@@ -50,9 +50,14 @@ export async function POST(request: NextRequest) {
     let fullResponse = '';
     for await (const chunk of response) {
       fullResponse += chunk.text || '';
+    } // Try to parse the response as JSON directly
+    try {
+      const jsonResponse = JSON.parse(fullResponse);
+      return NextResponse.json({ success: true, data: jsonResponse });
+    } catch {
+      // If parsing fails, return the raw text response
+      return NextResponse.json({ success: true, data: { text: fullResponse } });
     }
-
-    return NextResponse.json({ success: true, data: fullResponse });
   } catch (error: unknown) {
     console.error('Error in API route:', error);
 
