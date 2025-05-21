@@ -15,7 +15,7 @@ export const storyOptions: StoryOption[] = [
   { type: 'preset', label: 'Romantic Story' },
   { type: 'preset', label: 'Sci-Fi Story' },
   { type: 'preset', label: 'Thriller Story' },
-  { type: 'custom', label: 'Custom Prompt' },
+  { type: 'custom', label: 'Enter custom prompt' },
 ];
 export const styleOptions: StyleOption[] = [
   { name: 'Artistic', image: '/images/artistic.jpg' },
@@ -23,7 +23,7 @@ export const styleOptions: StyleOption[] = [
   { name: 'Fantasy', image: '/images/fantasy.jpg' },
   { name: 'Dark', image: '/images/dark.jpg' },
   { name: 'Water color', image: '/images/watercolor.jpg' },
-  { name: 'GTA', image: '/images/gta.jpg' },
+  { name: 'GTA', image: '/images/GTA.jpg' },
   { name: 'comic', image: '/images/comic.jpg' },
   { name: 'Paint', image: '/images/paint.jpg' },
 ];
