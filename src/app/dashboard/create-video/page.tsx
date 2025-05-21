@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { useVideo } from '@/context/video';
 import { Button } from '@/components/ui/button';
+import {
+  ValidatedTextArea,
+  ValidationPatterns,
+} from '@/components/ui/regex-validator';
 
 // Define types for the response data
 type JsonResponse =
@@ -175,17 +179,24 @@ export default function CreateVideoPage() {
 
   return (
     <div className='p-10'>
-      <h1 className='text-2xl font-bold mb-5'>Create Video Page</h1>
+      <h1 className='text-2xl font-bold mb-5'>Create Video Page</h1>{' '}
       <div className='mb-5'>
-        <label htmlFor='script' className='block text-sm font-medium mb-2'>
-          Enter Your Video Script
-        </label>
-        <textarea
+        <ValidatedTextArea
           id='script'
-          className='w-full h-40 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
+          label='Enter Your Video Script'
+          className='h-40'
           value={script === 'Script...' ? '' : script}
           onChange={(e) => setScript(e.target.value || 'Script...')}
           placeholder='Enter your video script here...'
+          // Example of using a custom validation rule
+          validationRule={{
+            pattern: /^[\s\S]{10,5000}$/,
+            message: 'Script should be between 10 and 5000 characters',
+          }}
+          onValidationChange={(isValid) => {
+            // You can use this to track validation state
+            console.log('Script validation status:', isValid);
+          }}
         />
       </div>{' '}
       <div className='my-5'>
