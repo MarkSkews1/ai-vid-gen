@@ -12,7 +12,7 @@ export function StorySelector({
   handleStorySelect,
 }: StorySelectorProps) {
   return (
-    <div className='mb-8 p-6 bg-gradient-to-r from-blue-300 to-purple-300 rounded-lg shadow-md border border-purple-400'>
+    <div className='mb-8 p-6 rounded-lg'>
       <h2 className='text-lg font-semibold mb-4'>
         Select a Story Type or Enter a Custom Prompt
       </h2>
