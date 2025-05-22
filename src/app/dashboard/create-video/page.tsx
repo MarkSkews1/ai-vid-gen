@@ -10,6 +10,7 @@ import { StorySelector } from '@/components/create-video/StorySelector';
 import { StyleSelector } from '@/components/create-video/StyleSelector';
 import { CustomPromptInput } from '@/components/create-video/CustomPromptInput';
 import { VideoResponse } from '@/components/create-video/VideoResponse';
+import { LoadingModal } from '@/components/ui/loading-modal';
 
 export default function CreateVideoPage() {
   const {
@@ -25,12 +26,13 @@ export default function CreateVideoPage() {
     handleStyleSelect,
     selectedStyle,
     loading,
+    showLoadingModal,
+    loadingModalMessage,
   } = useVideo();
 
   const handleCreateVideo = async () => {
     await handleSubmit();
   };
-
   return (
     <div className='p-10 bg-background min-h-screen text-foreground'>
       <h1 className='text-2xl font-bold mb-5'>Create Video Page</h1>
@@ -75,6 +77,8 @@ export default function CreateVideoPage() {
       </div>
       {/* Video Response Component */}
       <VideoResponse videoData={videoData} error={error} />
+      {/* Loading Modal */}
+      <LoadingModal isOpen={showLoadingModal} message={loadingModalMessage} />
     </div>
   );
 }

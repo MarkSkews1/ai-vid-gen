@@ -41,6 +41,8 @@ const initialState = {
   audio: '',
   captions: [] as object[],
   loading: false,
+  showLoadingModal: false,
+  loadingModalMessage: 'Processing your request...',
   selectedStory: 'Inspirational Story',
   selectedStyle: 'gta',
   videoTitle: '',
@@ -59,6 +61,10 @@ interface VideoContextType {
   setCaptions: Dispatch<SetStateAction<object[]>>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  showLoadingModal: boolean;
+  setShowLoadingModal: Dispatch<SetStateAction<boolean>>;
+  loadingModalMessage: string;
+  setLoadingModalMessage: Dispatch<SetStateAction<string>>;
   videoTitle: string;
   setVideoTitle: Dispatch<SetStateAction<string>>;
   videoData: VideoData | null;
@@ -91,6 +97,12 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
   const [audio, setAudio] = useState(initialState.audio);
   const [captions, setCaptions] = useState(initialState.captions);
   const [loading, setLoading] = useState(initialState.loading);
+  const [showLoadingModal, setShowLoadingModal] = useState(
+    initialState.showLoadingModal
+  );
+  const [loadingModalMessage, setLoadingModalMessage] = useState(
+    initialState.loadingModalMessage
+  );
   const [videoTitle, setVideoTitle] = useState(initialState.videoTitle);
   const [videoData, setVideoData] = useState(initialState.videoData);
   const [scenes, setScenes] = useState(initialState.scenes);
@@ -129,6 +141,8 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
+      setLoadingModalMessage('Generating video script...');
       console.log('Generating video script...');
       // 1. Create video script using google generative ai
       await createVideo(
@@ -139,6 +153,7 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
       // Optionally, you can check the status state here if you want to display a message
       if (status !== 'completed') {
         setLoading(false);
+        setShowLoadingModal(false);
         console.log('Failed to generate video script');
       } else {
         console.log('Video script generated successfully');
@@ -151,17 +166,20 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
       console.log('Error during video creation:', err);
     } finally {
       setLoading(false);
+      setShowLoadingModal(false);
     }
-  };
-  // Function to create a new video
+  }; // Function to create a new video
   const createVideo = async (promptContent: string) => {
     try {
       setLoading(true);
+      setShowLoadingModal(true);
+      setLoadingModalMessage('Creating your video...');
       setStatus('creating');
       setError('');
       const promptToSend =
         promptContent || 'Create a short video about nature and wildlife';
 
+      setLoadingModalMessage('Generating script with AI...');
       const response = await fetch('/api/generate-video', {
         method: 'POST',
         headers: {
@@ -175,6 +193,7 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
       if (result.success) {
         // Process the response
         try {
+          setLoadingModalMessage('Processing AI response...');
           // Parse the response data if needed
           const parsedData =
             typeof result.data === 'string'
@@ -195,21 +214,30 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
           }
 
           setStatus('completed');
+          setLoadingModalMessage('Your video is ready!');
+          // We'll close the modal after a brief delay to show the success message
+          setTimeout(() => {
+            setShowLoadingModal(false);
+          }, 1000);
         } catch (err) {
           console.warn('Failed to parse video data:', err);
           setError('Failed to process video data');
           setStatus('error');
+          setLoadingModalMessage('Error: Failed to process video data');
         }
       } else {
         setError(result.error || 'Failed to create video');
         setStatus('error');
+        setLoadingModalMessage('Error: Failed to create video');
       }
     } catch (err) {
       console.error('Video creation error:', err);
       setError('An error occurred while creating the video');
       setStatus('error');
+      setLoadingModalMessage('Error: An unexpected error occurred');
     } finally {
       setLoading(false);
+      // Don't close the modal here, it will be closed after errors are shown or success is displayed
     }
   };
   return (
@@ -223,6 +251,10 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
         setCaptions,
         loading,
         setLoading,
+        showLoadingModal,
+        setShowLoadingModal,
+        loadingModalMessage,
+        setLoadingModalMessage,
         videoTitle,
         setVideoTitle,
         videoData,
