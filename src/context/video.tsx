@@ -37,7 +37,6 @@ export type VideoStatus =
   | 'error';
 
 const initialState = {
-  script: 'Script...',
   images: [] as string[],
   audio: '',
   captions: [] as object[],
@@ -52,8 +51,6 @@ const initialState = {
 };
 
 interface VideoContextType {
-  script: string;
-  setScript: Dispatch<SetStateAction<string>>;
   images: string[];
   setImages: Dispatch<SetStateAction<string[]>>;
   audio: string;
@@ -72,7 +69,7 @@ interface VideoContextType {
   setStatus: Dispatch<SetStateAction<VideoStatus>>;
   error: string;
   setError: Dispatch<SetStateAction<string>>;
-  createVideo: (scriptContent: string) => Promise<void>;
+  createVideo: (promptContent: string) => Promise<void>;
   selectedStory: string;
   setSelectedStory: Dispatch<SetStateAction<string>>;
   selectedStyle: string;
@@ -90,7 +87,6 @@ const VideoContext = createContext<VideoContextType | undefined>(undefined);
 
 export const VideoProvider = ({ children }: { children: ReactNode }) => {
   //state
-  const [script, setScript] = useState(initialState.script);
   const [images, setImages] = useState(initialState.images);
   const [audio, setAudio] = useState(initialState.audio);
   const [captions, setCaptions] = useState(initialState.captions);
@@ -130,36 +126,48 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     setCustomPrompt(event.target.value);
     setSelectedStory('Enter custom prompt');
   };
-
   const handleSubmit = async () => {
-    const videoData = {
-      story: selectedStory || customPrompt,
-      style: selectedStyle,
-      prompt: customPrompt || selectedStory,
-    };
-    // send to server action
-    console.log('Video Data:', videoData);
+    try {
+      setLoading(true);
+      console.log('Generating video script...');
+      // 1. Create video script using google generative ai
+      await createVideo(
+        `Create a 30 second long ${
+          selectedStory || customPrompt
+        } video script. Include AI image prompt for each scene in ${selectedStyle} format. Provive the result in JSON formatwith 'imagePrompt' and 'textContent' fields.`
+      );
+      // Optionally, you can check the status state here if you want to display a message
+      if (status !== 'completed') {
+        setLoading(false);
+        console.log('Failed to generate video script');
+      } else {
+        console.log('Video script generated successfully');
+      }
+      // 2. Generate video images with replicate ai and cloudinary
+      // 3. Convert script to speech using google cloud text-to-speech
+      // 4. Save the audio to cloudinary
+      // 5. generate captions unsing assembly ai
+    } catch (err) {
+      console.log('Error during video creation:', err);
+    } finally {
+      setLoading(false);
+    }
   };
-
   // Function to create a new video
-  const createVideo = async (scriptContent: string) => {
+  const createVideo = async (promptContent: string) => {
     try {
       setLoading(true);
       setStatus('creating');
       setError('');
-
-      // Use a default message if script is the placeholder
-      const scriptToSend =
-        scriptContent === 'Script...'
-          ? 'Create a short video about nature and wildlife'
-          : scriptContent;
+      const promptToSend =
+        promptContent || 'Create a short video about nature and wildlife';
 
       const response = await fetch('/api/generate-video', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ script: scriptToSend }),
+        body: JSON.stringify({ script: promptToSend }),
       });
 
       const result = await response.json();
@@ -204,12 +212,9 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
-
   return (
     <VideoContext.Provider
       value={{
-        script,
-        setScript,
         images,
         setImages,
         audio,

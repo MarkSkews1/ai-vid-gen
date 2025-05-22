@@ -3,22 +3,20 @@
 import React from 'react';
 import { useVideo } from '@/context/video';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 // Import components
 import { StorySelector } from '@/components/create-video/StorySelector';
 import { StyleSelector } from '@/components/create-video/StyleSelector';
 import { CustomPromptInput } from '@/components/create-video/CustomPromptInput';
-import { ScriptInput } from '@/components/create-video/ScriptInput';
 import { VideoResponse } from '@/components/create-video/VideoResponse';
 
 export default function CreateVideoPage() {
   const {
-    script,
-    setScript,
     status,
     videoData,
     error,
-    createVideo,
+    handleSubmit,
     handleStorySelect,
     selectedStory,
     customPrompt,
@@ -26,11 +24,13 @@ export default function CreateVideoPage() {
     cancelCustomPrompt,
     handleStyleSelect,
     selectedStyle,
+    loading,
   } = useVideo();
 
   const handleCreateVideo = async () => {
-    await createVideo(script);
+    await handleSubmit();
   };
+
   return (
     <div className='p-10 bg-background min-h-screen text-foreground'>
       <h1 className='text-2xl font-bold mb-5'>Create Video Page</h1>
@@ -38,7 +38,7 @@ export default function CreateVideoPage() {
       <StorySelector
         selectedStory={selectedStory}
         handleStorySelect={handleStorySelect}
-      />
+      />{' '}
       {/* Custom Prompt Input Component */}{' '}
       {selectedStory === 'Enter custom prompt' && (
         <CustomPromptInput
@@ -51,17 +51,26 @@ export default function CreateVideoPage() {
       <StyleSelector
         selectedStyle={selectedStyle}
         handleStyleSelect={handleStyleSelect}
-      />
-      {/* Script Input Component */}
-      <ScriptInput script={script} setScript={setScript} />
-      {/* Create Video Button */}
+      />{' '}
+      {/* Create Video Button */}{' '}
       <div className='my-5'>
         <Button
           onClick={handleCreateVideo}
           className='bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
-          disabled={!script || script === 'Script...' || status === 'creating'}
+          disabled={
+            status === 'creating' ||
+            loading ||
+            (!selectedStory && !customPrompt)
+          }
         >
-          {status === 'creating' ? 'Creating...' : 'Create Video'}
+          {status === 'creating' || loading ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Creating...
+            </>
+          ) : (
+            'Create Video'
+          )}
         </Button>
       </div>
       {/* Video Response Component */}
