@@ -9,6 +9,7 @@ import {
   ReactNode,
   ChangeEvent,
 } from 'react';
+import { generateImageAi } from '@/actions/replicateai';
 
 // Define types for video creation
 export type Scene = {
@@ -157,6 +158,7 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
         console.log('Failed to generate video script');
       } else {
         console.log('Video script generated successfully');
+        setLoadingModalMessage('Generating images from the script...');
       }
       // 2. Generate video images with replicate ai and cloudinary
       // 3. Convert script to speech using google cloud text-to-speech

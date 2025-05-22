@@ -28,6 +28,7 @@ export default function CreateVideoPage() {
     loading,
     showLoadingModal,
     loadingModalMessage,
+    images,
   } = useVideo();
 
   const handleCreateVideo = async () => {
@@ -75,6 +76,7 @@ export default function CreateVideoPage() {
           )}
         </Button>
       </div>
+      <pre>{JSON.stringify(images, null, 4)}</pre>
       {/* Video Response Component */}
       <VideoResponse videoData={videoData} error={error} />
       {/* Loading Modal */}

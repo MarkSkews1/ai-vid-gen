@@ -47,10 +47,18 @@ export async function createVideoAi(message: string): Promise<VideoResponse> {
       : message;
 
     // Check if we should use mock response in development mode
-    const useMockResponse = process.env.USE_MOCK_GEMINI === 'true';
+    const mockEnvValue = process.env.USE_MOCK_GEMINI;
+    console.log('USE_MOCK_GEMINI env value:', mockEnvValue);
+    const useMockResponse = mockEnvValue === 'true';
 
     if (useMockResponse) {
       console.log('Using mock Gemini response for development');
+      return { success: true, data: mockResponse };
+    }
+
+    // For testing - force use mock response (remove this in production)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Forcing mock response in development mode');
       return { success: true, data: mockResponse };
     }
 
