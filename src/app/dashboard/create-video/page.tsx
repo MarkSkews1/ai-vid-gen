@@ -11,6 +11,7 @@ import { StyleSelector } from '@/components/create-video/StyleSelector';
 import { CustomPromptInput } from '@/components/create-video/CustomPromptInput';
 import { VideoResponse } from '@/components/create-video/VideoResponse';
 import { LoadingModal } from '@/components/ui/loading-modal';
+import DebugImageGeneration from '@/components/create-video/DebugImageGeneration';
 
 export default function CreateVideoPage() {
   const {
@@ -28,7 +29,6 @@ export default function CreateVideoPage() {
     loading,
     showLoadingModal,
     loadingModalMessage,
-    images,
   } = useVideo();
 
   const handleCreateVideo = async () => {
@@ -75,8 +75,9 @@ export default function CreateVideoPage() {
             'Create Video'
           )}
         </Button>
-      </div>
-      <pre>{JSON.stringify(images, null, 4)}</pre>
+      </div>{' '}
+      {/* Debug Images Section */}
+      <DebugImageGeneration />
       {/* Video Response Component */}
       <VideoResponse videoData={videoData} error={error} />
       {/* Loading Modal */}

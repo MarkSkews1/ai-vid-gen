@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 // Define types for the response data
 export type JsonResponse =
@@ -19,8 +20,7 @@ function SceneView({ scene, index }: SceneViewProps) {
   return (
     <div className='bg-gray-50 p-4 rounded-md'>
       <h4 className='text-md font-semibold mb-2'>Scene {index + 1}</h4>
-
-      {/* Prioritize displaying textContent and imagePrompt */}
+      {/* Prioritize displaying textContent and imagePrompt */}{' '}
       {'textContent' in scene && (
         <div className='mb-4 border-l-4 border-blue-400 pl-3 py-2 bg-blue-50 rounded'>
           <div className='font-medium mb-1'>Text Content:</div>
@@ -31,7 +31,6 @@ function SceneView({ scene, index }: SceneViewProps) {
           </div>
         </div>
       )}
-
       {'imagePrompt' in scene && (
         <div className='mb-4 border-l-4 border-green-400 pl-3 py-2 bg-green-50 rounded'>
           <div className='font-medium mb-1'>Image Prompt:</div>
@@ -42,11 +41,27 @@ function SceneView({ scene, index }: SceneViewProps) {
           </div>
         </div>
       )}
-
+      {'imageUrl' in scene && scene.imageUrl && (
+        <div className='mb-4'>
+          <div className='font-medium mb-1'>Generated Image:</div>
+          <Image
+            src={String(scene.imageUrl)}
+            alt={`Scene ${index + 1}`}
+            className='rounded-md border border-gray-200 shadow-sm'
+            width={500}
+            height={300}
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+        </div>
+      )}
       {/* Display other scene properties */}
-      {Object.entries(scene).map(([sceneKey, sceneValue]) => {
+      {Object.entries(scene).map(([sceneKey, sceneValue]): React.ReactNode => {
         // Skip textContent and imagePrompt as they're already displayed above
-        if (sceneKey === 'textContent' || sceneKey === 'imagePrompt')
+        if (
+          sceneKey === 'textContent' ||
+          sceneKey === 'imagePrompt' ||
+          sceneKey === 'imageUrl'
+        )
           return null;
 
         return (

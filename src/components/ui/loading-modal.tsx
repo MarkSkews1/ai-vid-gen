@@ -17,7 +17,7 @@ export function LoadingModal({
       <DialogContent className='sm:max-w-md flex flex-col items-center justify-center p-6'>
         <VisuallyHidden>
           <DialogTitle>Loading Progress</DialogTitle>
-        </VisuallyHidden>
+        </VisuallyHidden>{' '}
         <div className='w-32 h-32 relative mb-4'>
           <Image
             src='/progress.gif'
@@ -25,6 +25,7 @@ export function LoadingModal({
             fill
             style={{ objectFit: 'contain' }}
             priority
+            unoptimized
           />
         </div>
         <p className='text-center text-lg font-medium'>{message}</p>
