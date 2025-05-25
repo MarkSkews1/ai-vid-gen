@@ -1,10 +1,5 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+'use server';
 import { v2 as cloudinaryV2 } from 'cloudinary';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 // Configure Cloudinary
 cloudinaryV2.config({
@@ -13,4 +8,4 @@ cloudinaryV2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export { cloudinaryV2 };
+export default cloudinaryV2;

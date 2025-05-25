@@ -1,21 +1,22 @@
 'use server';
 
 import Replicate from 'replicate';
-import { v2 as cloudinaryV2 } from 'cloudinary';
+// import { v2 as cloudinaryV2 } from 'cloudinary';
 import { nanoid } from 'nanoid';
 import fetch from 'node-fetch';
+import cloudinaryV2 from '@/lib/cloudinary';
 
 // Configure Replicate API client
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Configure Cloudinary
-cloudinaryV2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// // Configure Cloudinary
+// cloudinaryV2.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
 
 // Define types for better type safety
 interface CloudinaryUploadResult {
