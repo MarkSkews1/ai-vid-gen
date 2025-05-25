@@ -12,7 +12,12 @@ export type JsonResponse =
   | { text: string };
 
 interface SceneViewProps {
-  scene: Record<string, unknown>;
+  scene: Record<string, unknown> & {
+    textContent?: string;
+    imagePrompt?: string;
+    imageUrl?: string;
+    audio?: string;
+  };
   index: number;
 }
 
@@ -20,14 +25,12 @@ function SceneView({ scene, index }: SceneViewProps) {
   return (
     <div className='bg-gray-50 p-4 rounded-md'>
       <h4 className='text-md font-semibold mb-2'>Scene {index + 1}</h4>
-      {/* Prioritize displaying textContent and imagePrompt */}{' '}
+      {/* Prioritize displaying textContent and imagePrompt */}
       {'textContent' in scene && (
         <div className='mb-4 border-l-4 border-blue-400 pl-3 py-2 bg-blue-50 rounded'>
           <div className='font-medium mb-1'>Text Content:</div>
           <div className='text-gray-700 whitespace-pre-wrap'>
-            {typeof scene.textContent === 'string'
-              ? scene.textContent
-              : String(scene.textContent)}
+            {String(scene.textContent)}
           </div>
         </div>
       )}
@@ -35,9 +38,7 @@ function SceneView({ scene, index }: SceneViewProps) {
         <div className='mb-4 border-l-4 border-green-400 pl-3 py-2 bg-green-50 rounded'>
           <div className='font-medium mb-1'>Image Prompt:</div>
           <div className='text-gray-700 whitespace-pre-wrap'>
-            {typeof scene.imagePrompt === 'string'
-              ? scene.imagePrompt
-              : String(scene.imagePrompt)}
+            {String(scene.imagePrompt)}
           </div>
         </div>
       )}
@@ -54,13 +55,20 @@ function SceneView({ scene, index }: SceneViewProps) {
           />
         </div>
       )}
+      {'audio' in scene && scene.audio && (
+        <div className='mb-4'>
+          <div className='font-medium mb-1'>Generated Audio:</div>
+          <audio controls src={String(scene.audio)} className='w-full mt-1' />
+        </div>
+      )}
       {/* Display other scene properties */}
-      {Object.entries(scene).map(([sceneKey, sceneValue]): React.ReactNode => {
-        // Skip textContent and imagePrompt as they're already displayed above
+      {Object.entries(scene).map(([sceneKey, sceneValue]) => {
+        // Skip properties that are already displayed above
         if (
           sceneKey === 'textContent' ||
           sceneKey === 'imagePrompt' ||
-          sceneKey === 'imageUrl'
+          sceneKey === 'imageUrl' ||
+          sceneKey === 'audio'
         )
           return null;
 
@@ -100,7 +108,11 @@ export function JsonRenderer({ data }: JsonRendererProps) {
             {key === 'scenes' && Array.isArray(value) ? (
               <div className='mt-2 space-y-4'>
                 {value.map((scene, index) => (
-                  <SceneView key={index} scene={scene} index={index} />
+                  <SceneView
+                    key={index}
+                    scene={scene as Record<string, unknown>}
+                    index={index}
+                  />
                 ))}
               </div>
             ) : typeof value === 'object' && value !== null ? (

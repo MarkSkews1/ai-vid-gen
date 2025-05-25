@@ -65,7 +65,6 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     createVideo,
     handleSubmit,
   } = useVideoCreation();
-
   // Use the input handling hook for UI interactions
   const {
     handleStorySelect,
@@ -77,6 +76,7 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedStyle,
     setCustomPrompt
   );
+
   return (
     <VideoContext.Provider
       value={{

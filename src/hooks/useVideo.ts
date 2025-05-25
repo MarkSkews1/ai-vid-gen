@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { generateImageAi } from '@/actions/replicateai';
+import { generateAudioFromText } from '@/actions/googlecloud';
 import {
   generateVideoScript,
   processVideoScriptResponse,
@@ -207,6 +208,55 @@ export function useVideoCreation() {
   };
 
   /**
+   * Generates audio for each scene in the video
+   */
+  const generateAudios = async (scenesToProcess: Scene[]): Promise<Scene[]> => {
+    if (!scenesToProcess.length) return [];
+
+    const updatedScenes = [...scenesToProcess];
+
+    // Process each scene sequentially to generate audio
+    for (let i = 0; i < updatedScenes.length; i++) {
+      const scene = updatedScenes[i];
+
+      if (scene.textContent) {
+        try {
+          setLoadingModalMessage(
+            `Generating audio ${i + 1} of ${updatedScenes.length}...`
+          );
+          console.log(`Starting audio generation for scene ${i + 1}`);
+
+          const audioResult = await generateAudioFromText(scene.textContent);
+          const audioUrl =
+            audioResult &&
+            typeof audioResult === 'object' &&
+            'url' in audioResult
+              ? String(audioResult.url)
+              : '';
+
+          console.log(`Successfully generated audio for scene ${i + 1}`);
+
+          // Update the scene with the audio URL
+          updatedScenes[i] = { ...scene, audio: audioUrl };
+        } catch (error) {
+          // Enhanced error handling with more details
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          console.error(
+            `Error generating audio for scene ${i + 1}:`,
+            errorMessage,
+            error
+          );
+
+          // Continue with other scenes even if one fails
+          updatedScenes[i] = { ...scene, audio: '' };
+        }
+      }
+    }
+
+    return updatedScenes;
+  };
+  /**
    * Updates scenes with generated image URLs
    */
   const updateScenesWithImages = (
@@ -268,9 +318,7 @@ export function useVideoCreation() {
           scenesToProcess,
           generatedImages
         );
-        setScenes(updatedScenes);
-
-        // 4. Update videoData with the new scenes containing image URLs
+        setScenes(updatedScenes); // 4. Update videoData with the new scenes containing image URLs
         if (videoData) {
           const updatedVideoData = {
             ...videoData,
@@ -280,6 +328,22 @@ export function useVideoCreation() {
           console.log('Updated videoData with image URLs');
         }
 
+        // 5. Generate audio for each scene
+        setLoadingModalMessage('Generating audio for scenes...');
+        const scenesWithAudio = await generateAudios(updatedScenes);
+
+        // 6. Update scenes with audio URLs
+        setScenes(scenesWithAudio);
+
+        // 7. Update videoData with the new scenes containing audio URLs
+        if (videoData) {
+          const updatedVideoDataWithAudio = {
+            ...videoData,
+            scenes: scenesWithAudio,
+          };
+          setVideoData(updatedVideoDataWithAudio);
+          console.log('Updated videoData with audio URLs');
+        }
         console.log('Image generation completed successfully');
         setLoadingModalMessage('Images generated successfully!');
       } else {
@@ -330,11 +394,10 @@ export function useVideoCreation() {
     customPrompt,
     setCustomPrompt,
     debugImageGeneration,
-    setDebugImageGeneration,
-
-    // Functions
+    setDebugImageGeneration, // Functions
     createVideo,
     generateImages,
+    generateAudios,
     updateScenesWithImages,
     handleSubmit,
   };
