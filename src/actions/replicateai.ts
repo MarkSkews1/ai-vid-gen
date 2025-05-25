@@ -1,10 +1,9 @@
 'use server';
 
 import Replicate from 'replicate';
-// import { v2 as cloudinaryV2 } from 'cloudinary';
 import { nanoid } from 'nanoid';
 import fetch from 'node-fetch';
-import cloudinaryV2 from '@/lib/cloudinary';
+import { uploadStream } from '@/lib/cloudinary';
 
 // Configure Replicate API client
 const replicate = new Replicate({
@@ -19,10 +18,7 @@ const replicate = new Replicate({
 // });
 
 // Define types for better type safety
-interface CloudinaryUploadResult {
-  secure_url: string;
-  [key: string]: unknown;
-}
+// CloudinaryUploadResult interface is no longer needed as it's imported via the uploadStream function
 
 export async function generateImageAi(imagePrompt: string): Promise<string> {
   try {
@@ -83,40 +79,25 @@ export async function generateImageAi(imagePrompt: string): Promise<string> {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     console.log('buffer =>', buffer);
-    console.log('imageUrl =>', imageUrl);
+    console.log('imageUrl =>', imageUrl); // 3. upload the image to Cloudinary using buffer
+    try {
+      const uploadResponse = await uploadStream(buffer, {
+        folder: 'ai_video_images_udemy',
+        public_id: nanoid(),
+      });
 
-    // 3. upload the image to Cloudinary using buffer
-    const uploadResponse = await new Promise<CloudinaryUploadResult>(
-      (resolve, reject) => {
-        cloudinaryV2.uploader
-          .upload_stream(
-            {
-              folder: 'ai_video_images_udemy',
-              public_id: nanoid(),
-            },
-            (
-              error: Error | undefined,
-              result: CloudinaryUploadResult | undefined
-            ) => {
-              if (error || !result) {
-                reject(error || new Error('No result from Cloudinary'));
-              } else {
-                resolve(result);
-              }
-            }
-          )
-          .end(buffer);
+      // 4. return the image url from Cloudinary
+      if (!uploadResponse || !uploadResponse.secure_url) {
+        throw new Error('Failed to upload to Cloudinary');
       }
-    );
 
-    // 4. return the image url from Cloudinary
-    if (!uploadResponse || !uploadResponse.secure_url) {
+      const cloudinaryUrl = uploadResponse.secure_url;
+      console.log('cloudinary image =>', cloudinaryUrl);
+      return cloudinaryUrl;
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
       throw new Error('Failed to upload to Cloudinary');
     }
-
-    const cloudinaryUrl = uploadResponse.secure_url;
-    console.log('cloudinary image =>', cloudinaryUrl);
-    return cloudinaryUrl;
   } catch (error) {
     console.error('Error generating image:', error);
     if (error instanceof Error) {
