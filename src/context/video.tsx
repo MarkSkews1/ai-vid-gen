@@ -7,6 +7,7 @@ import {
   VideoStatus,
   DebugImageGeneration,
 } from '@/types/video';
+import { Caption } from '@/actions/assemblyai';
 import { useVideoCreation, useVideoInputHandling } from '@/hooks/useVideo';
 
 /**
@@ -16,7 +17,7 @@ interface VideoContextType {
   // State
   images: string[];
   audio: string;
-  captions: object[];
+  captions: Caption[];
   loading: boolean;
   showLoadingModal: boolean;
   loadingModalMessage: string;

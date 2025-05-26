@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { generateImageAi } from '@/actions/replicateai';
 import { generateAudioFromText } from '@/actions/googlecloud';
+import { generateCaptions } from '@/actions/assemblyai';
 import {
   generateVideoScript,
   processVideoScriptResponse,
@@ -11,7 +12,6 @@ import {
   VideoState,
   Scene,
   VideoStatus,
-  VideoData,
   DebugImageGeneration,
 } from '@/types/video';
 
@@ -264,6 +264,53 @@ export function useVideoCreation() {
     return updatedScenes;
   };
   /**
+   * Generates captions for audio files in scenes
+   */
+  const generateCaptionsForScenes = async (
+    scenesToProcess: Scene[]
+  ): Promise<Scene[]> => {
+    if (!scenesToProcess.length) return [];
+
+    const updatedScenes = [...scenesToProcess];
+
+    // Process each scene sequentially to generate captions
+    for (let i = 0; i < updatedScenes.length; i++) {
+      const scene = updatedScenes[i];
+
+      if (scene.audio) {
+        try {
+          setLoadingModalMessage(
+            `Generating captions ${i + 1} of ${updatedScenes.length}...`
+          );
+          console.log(`Starting caption generation for scene ${i + 1}`);
+
+          // Generate captions from the audio URL
+          const captionsResult = await generateCaptions(scene.audio);
+
+          console.log(`Successfully generated captions for scene ${i + 1}`);
+
+          // Update the scene with the captions
+          updatedScenes[i] = { ...scene, captions: captionsResult };
+        } catch (error) {
+          // Enhanced error handling with more details
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          console.error(
+            `Error generating captions for scene ${i + 1}:`,
+            errorMessage,
+            error
+          );
+
+          // Continue with other scenes even if one fails
+          updatedScenes[i] = { ...scene, captions: [] };
+        }
+      }
+    }
+
+    return updatedScenes;
+  };
+
+  /**
    * Updates scenes with generated image URLs
    */
   const updateScenesWithImages = (
@@ -337,9 +384,7 @@ export function useVideoCreation() {
 
         // 5. Generate audio for each scene
         setLoadingModalMessage('Generating audio for scenes...');
-        const scenesWithAudio = await generateAudios(updatedScenes);
-
-        // 6. Update scenes with audio URLs
+        const scenesWithAudio = await generateAudios(updatedScenes); // 6. Update scenes with audio URLs
         setScenes(scenesWithAudio);
 
         // 7. Update videoData with the new scenes containing audio URLs
@@ -351,8 +396,34 @@ export function useVideoCreation() {
           setVideoData(updatedVideoDataWithAudio);
           console.log('Updated videoData with audio URLs');
         }
-        console.log('Image generation completed successfully');
-        setLoadingModalMessage('Images generated successfully!');
+
+        // 8. Generate captions for each scene with audio
+        setLoadingModalMessage('Generating captions from audio...');
+        const scenesWithCaptions = await generateCaptionsForScenes(
+          scenesWithAudio
+        );
+
+        // 9. Update scenes with captions
+        setScenes(scenesWithCaptions);
+
+        // 10. Collect all captions for the entire video
+        const allCaptions = scenesWithCaptions.flatMap(
+          (scene) => scene.captions || []
+        );
+        setCaptions(allCaptions);
+
+        // 11. Update videoData with the new scenes containing captions
+        if (videoData) {
+          const updatedVideoDataWithCaptions = {
+            ...videoData,
+            scenes: scenesWithCaptions,
+          };
+          setVideoData(updatedVideoDataWithCaptions);
+          console.log('Updated videoData with captions');
+        }
+
+        console.log('Video generation completed successfully');
+        setLoadingModalMessage('Video assets generated successfully!');
       } else {
         console.log('No scenes available for image generation');
         setLoadingModalMessage('No scenes available for image generation');
@@ -407,6 +478,7 @@ export function useVideoCreation() {
     createVideo,
     generateImages,
     generateAudios,
+    generateCaptionsForScenes,
     updateScenesWithImages,
     handleSubmit,
   };
