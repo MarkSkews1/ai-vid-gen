@@ -31,7 +31,9 @@ interface VideoContextType {
   customPrompt: string;
   debugImageGeneration: DebugImageGeneration[];
   useMockAudio: boolean;
+  useMockCaptions: boolean;
   setUseMockAudio: (useMock: boolean) => void;
+  setUseMockCaptions: (useMock: boolean) => void;
   setCustomPrompt: (prompt: string) => void;
 
   // Functions
@@ -67,6 +69,8 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     setCustomPrompt,
     useMockAudio,
     setUseMockAudio,
+    useMockCaptions,
+    setUseMockCaptions,
     debugImageGeneration,
     createVideo,
     handleSubmit,
@@ -104,6 +108,8 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
         debugImageGeneration,
         useMockAudio,
         setUseMockAudio,
+        useMockCaptions,
+        setUseMockCaptions,
 
         // Functions
         createVideo,

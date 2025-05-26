@@ -33,6 +33,7 @@ const initialState: VideoState = {
   customPrompt: 'Create a short video about nature and wildlife',
   debugImageGeneration: [],
   useMockAudio: false,
+  useMockCaptions: false,
 };
 
 /**
@@ -66,9 +67,11 @@ export function useVideoCreation() {
     initialState.selectedStyle
   );
   const [customPrompt, setCustomPrompt] = useState(initialState.customPrompt);
-
   // Mock settings
   const [useMockAudio, setUseMockAudio] = useState(initialState.useMockAudio);
+  const [useMockCaptions, setUseMockCaptions] = useState(
+    initialState.useMockCaptions
+  );
 
   // Debug state
   const [debugImageGeneration, setDebugImageGeneration] = useState<
@@ -285,7 +288,11 @@ export function useVideoCreation() {
           console.log(`Starting caption generation for scene ${i + 1}`);
 
           // Generate captions from the audio URL
-          const captionsResult = await generateCaptions(scene.audio);
+          // Pass the useMockCaptions flag to the generateCaptions function
+          const captionsResult = await generateCaptions(
+            scene.audio,
+            useMockCaptions
+          );
 
           console.log(`Successfully generated captions for scene ${i + 1}`);
 
@@ -472,6 +479,8 @@ export function useVideoCreation() {
     setCustomPrompt,
     useMockAudio,
     setUseMockAudio,
+    useMockCaptions,
+    setUseMockCaptions,
     debugImageGeneration,
     setDebugImageGeneration,
     // Functions

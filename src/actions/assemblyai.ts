@@ -1,5 +1,6 @@
 'use server';
 import { AssemblyAI } from 'assemblyai';
+import { generateMockCaptions } from './mockCaptions';
 
 // Check if API key exists
 if (!process.env.ASSEMBLYAI_API_KEY) {
@@ -29,11 +30,25 @@ export type Caption = {
 /**
  * Generates captions for an audio file using AssemblyAI
  * @param audioFileUrl URL of the audio file to transcribe
+ * @param useMock Whether to use mock captions instead of the real API
  * @returns An array of caption objects with timing information
  */
 export async function generateCaptions(
-  audioFileUrl: string
+  audioFileUrl: string,
+  useMock: boolean = false
 ): Promise<Caption[]> {
+  // Check for mock mode
+  if (useMock) {
+    console.log('Using mock captions generation');
+    return generateMockCaptions(audioFileUrl);
+  }
+
+  // Check if AssemblyAI API key is available
+  if (!process.env.ASSEMBLYAI_API_KEY) {
+    console.log('AssemblyAI API key not found, falling back to mock captions');
+    return generateMockCaptions(audioFileUrl);
+  }
+
   try {
     const data = {
       audio_url: audioFileUrl,
