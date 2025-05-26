@@ -2,7 +2,8 @@
 import { uploadStream } from '@/lib/cloudinary';
 import * as textToSpeech from '@google-cloud/text-to-speech';
 import { nanoid } from 'nanoid';
-import { generateMockAudio, generateAndUploadMockAudio } from './mockAudio';
+import { generateMockAudio } from './mockAudio';
+import { Buffer as NodeBuffer } from 'node:buffer';
 
 export async function generateAudioFromText(
   text: string,
@@ -57,9 +58,9 @@ export async function generateAudioFromText(
   }
 
   // Ensure we have a proper Buffer for Cloudinary
-  const audioBuffer = Buffer.isBuffer(audioContent)
+  const audioBuffer = NodeBuffer.isBuffer(audioContent)
     ? audioContent
-    : Buffer.from(audioContent);
+    : NodeBuffer.from(audioContent);
 
   // generate UID for the audio file
   const fileName = nanoid(6);

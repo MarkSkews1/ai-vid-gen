@@ -1,5 +1,6 @@
 'use server';
 import { v2 as cloudinaryV2 } from 'cloudinary';
+import { Buffer as NodeBuffer } from 'node:buffer';
 
 // Define types for Cloudinary responses
 interface CloudinaryUploadResult {
@@ -17,7 +18,7 @@ cloudinaryV2.config({
 
 // Export async functions instead of the object directly
 export async function uploadStream(
-  buffer: Buffer,
+  buffer: NodeBuffer,
   options: Record<string, unknown>
 ): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {

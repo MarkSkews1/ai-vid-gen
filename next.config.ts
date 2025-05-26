@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     USE_MOCK_GEMINI: process.env.USE_MOCK_GEMINI,
   },
+  // Ensure output is fully cleaned on build
+  cleanDistDir: true,
   // Add transpilePackages to handle cloudinary
   transpilePackages: ['cloudinary'],
   webpack: (config, { isServer }) => {

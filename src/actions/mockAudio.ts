@@ -2,6 +2,8 @@
 
 import { nanoid } from 'nanoid';
 import { uploadStream } from '@/lib/cloudinary';
+// In Next.js server components, we need to explicitly reference Buffer from node types
+import { Buffer as NodeBuffer } from 'node:buffer';
 
 // Sample mock audio URLs
 const MOCK_AUDIO_URLS = [
@@ -52,12 +54,37 @@ export async function generateMockAudio(text: string) {
  * but don't want to use an external API for generating it
  * @returns Buffer containing a minimal valid MP3 file
  */
-export function createEmptyMP3Buffer(): Buffer {
-  // This is a minimal valid MP3 header (not a complete file)
-  // For real testing, you would use a complete MP3 file
-  const buffer = Buffer.from([
-    0xff, 0xfb, 0x90, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
+export async function createEmptyMP3Buffer(): Promise<NodeBuffer> {
+  // This is a valid minimal MP3 file with proper header structure
+  // ID3v2 header (10 bytes) + Frame header + minimal audio data
+  const buffer = NodeBuffer.from([
+    // ID3v2 header
+    0x49,
+    0x44,
+    0x33, // "ID3"
+    0x03,
+    0x00, // Version 2.3.0
+    0x00, // Flags
+    0x00,
+    0x00,
+    0x00,
+    0x0a, // Size (10 bytes)
+
+    // MP3 frame header
+    0xff,
+    0xfb,
+    0x90,
+    0x44, // MPEG-1 Layer 3, 128kbps, 44.1kHz
+
+    // Minimal audio data (silence)
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
   ]);
   return buffer;
 }
@@ -65,19 +92,19 @@ export function createEmptyMP3Buffer(): Buffer {
 /**
  * Generates a mock audio and uploads it to Cloudinary
  * This is useful when you need to test the full pipeline including upload
- * @param _text The text content to generate audio for (not used internally)
+ * @param text The text content to generate audio for (not used internally)
  * @returns Object with URL to the uploaded mock audio file
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function generateAndUploadMockAudio(
-  _text: string
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  text: string
 ): Promise<{ url: string }> {
   try {
     // Create a mock MP3 buffer
-    const audioBuffer = createEmptyMP3Buffer();
-
+    const audioBuffer = await createEmptyMP3Buffer();
     // generate UID for the audio file
-    const fileName = nanoid(6); // Upload to Cloudinary using our server function
+    const fileName = nanoid(6);
+    // Upload to Cloudinary using our server function
     const result = await uploadStream(audioBuffer, {
       resource_type: 'video',
       folder: 'ai_video_images_udemy',

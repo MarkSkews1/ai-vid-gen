@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -20,6 +21,7 @@
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-visually-hidden": "^1.2.3",
+    "assemblyai": "^4.12.2",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
