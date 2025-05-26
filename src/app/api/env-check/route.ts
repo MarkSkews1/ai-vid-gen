@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const envVars = {
     REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN
       ? `exists (length: ${process.env.REPLICATE_API_TOKEN.length})`
@@ -12,6 +12,8 @@ export async function GET(request: NextRequest) {
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET
       ? 'exists'
       : 'missing',
+    USE_MOCK_GEMINI: process.env.USE_MOCK_GEMINI || 'not set',
+    USE_MOCK_REPLICATE: process.env.USE_MOCK_REPLICATE || 'not set',
   };
 
   return NextResponse.json({

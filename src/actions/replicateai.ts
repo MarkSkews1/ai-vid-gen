@@ -20,6 +20,30 @@ const replicate = new Replicate({
 // Define types for better type safety
 // CloudinaryUploadResult interface is no longer needed as it's imported via the uploadStream function
 
+// Mock image URLs for development mode - Cloudinary URLs that won't expire
+const mockImageUrls = [
+  // Adventure/Fantasy themed images
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/fantasy_adventure_qv1hty.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/forest_adventure_guhznk.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/cave_treasure_hqfufj.jpg',
+
+  // Sci-Fi themed images
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/scifi_city_a0lvrj.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/space_station_z8tpzx.jpg',
+
+  // Nature themed images
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/mountain_landscape_wg1b5j.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/ocean_scene_tvwxma.jpg',
+
+  // Urban/City themed images
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/city_street_mrj1su.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/night_city_gu7fkj.jpg',
+
+  // Character focused images
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/hero_character_ahg3qv.jpg',
+  'https://res.cloudinary.com/dxgbphyhf/image/upload/v1716636431/ai_video_images_udemy/mock/group_characters_hbsgk7.jpg',
+];
+
 export async function generateImageAi(imagePrompt: string): Promise<string> {
   try {
     // Debug: Log environment variables availability
@@ -33,6 +57,27 @@ export async function generateImageAi(imagePrompt: string): Promise<string> {
         !!process.env.CLOUDINARY_API_KEY &&
         !!process.env.CLOUDINARY_API_SECRET
     );
+
+    // Check if we should use mock images in development mode
+    const mockEnvValue = process.env.USE_MOCK_REPLICATE;
+    console.log('USE_MOCK_REPLICATE env value:', mockEnvValue);
+    const useMockResponse = mockEnvValue === 'true';
+
+    if (useMockResponse) {
+      console.log('Using mock Replicate image for development');
+      // Return a random mock image URL
+      const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
+      const mockImageUrl = mockImageUrls[randomIndex];
+      console.log('Selected mock image URL:', mockImageUrl);
+      return mockImageUrl;
+    }
+
+    // For testing - you can uncomment this to force mock images in development
+    // if (process.env.NODE_ENV === 'development') {
+    //   console.log('Forcing mock image in development mode');
+    //   const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
+    //   return mockImageUrls[randomIndex];
+    // }
 
     // 1. generate image using Replicate AI
     const input = {

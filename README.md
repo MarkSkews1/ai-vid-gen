@@ -20,6 +20,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Development Features
+
+### Mock API Responses
+
+To avoid unnecessary API calls during development, this project supports mock responses for both content generation and image generation.
+
+#### Mock Image Generation
+
+To use mock images instead of calling the Replicate API:
+
+1. Create a `.env.local` file in the root directory (if it doesn't exist already)
+2. Add the following environment variable:
+   ```
+   USE_MOCK_REPLICATE=true
+   ```
+
+This will use pre-defined mock images instead of generating new ones with Replicate, which helps:
+- Speed up development and testing
+- Avoid unnecessary API costs
+- Work offline when needed
+
+#### Mock Content Generation
+
+To use mock content instead of calling the Gemini API:
+
+1. Create a `.env.local` file in the root directory
+2. Add the following environment variable:
+   ```
+   USE_MOCK_GEMINI=true
+   ```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
