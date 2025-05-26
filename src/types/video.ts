@@ -51,4 +51,5 @@ export interface VideoState {
   error: string;
   customPrompt: string;
   debugImageGeneration: DebugImageGeneration[];
+  useMockAudio: boolean;
 }

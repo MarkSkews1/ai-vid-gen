@@ -12,6 +12,7 @@ import { CustomPromptInput } from '@/components/create-video/CustomPromptInput';
 import { VideoResponse } from '@/components/create-video/VideoResponse';
 import { LoadingModal } from '@/components/ui/loading-modal';
 import DebugImageGeneration from '@/components/create-video/DebugImageGeneration';
+import { MockAudioToggle } from '@/components/create-video/MockAudioToggle';
 
 export default function CreateVideoPage() {
   const {
@@ -29,6 +30,8 @@ export default function CreateVideoPage() {
     loading,
     showLoadingModal,
     loadingModalMessage,
+    useMockAudio,
+    setUseMockAudio,
   } = useVideo();
 
   const handleCreateVideo = async () => {
@@ -50,11 +53,16 @@ export default function CreateVideoPage() {
           cancelCustomPrompt={cancelCustomPrompt}
         />
       )}
-      {/* Style Selector Component */}
+      {/* Style Selector Component */}{' '}
       <StyleSelector
         selectedStyle={selectedStyle}
         handleStyleSelect={handleStyleSelect}
-      />{' '}
+      />
+      {/* Mock Audio Toggle */}
+      <MockAudioToggle
+        useMockAudio={useMockAudio}
+        setUseMockAudio={setUseMockAudio}
+      />
       {/* Create Video Button */}{' '}
       <div className='my-5'>
         <Button

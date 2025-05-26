@@ -29,6 +29,9 @@ interface VideoContextType {
   selectedStyle: string;
   customPrompt: string;
   debugImageGeneration: DebugImageGeneration[];
+  useMockAudio: boolean;
+  setUseMockAudio: (useMock: boolean) => void;
+  setCustomPrompt: (prompt: string) => void;
 
   // Functions
   createVideo: (promptContent: string) => Promise<Scene[]>;
@@ -61,6 +64,8 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedStyle,
     customPrompt,
     setCustomPrompt,
+    useMockAudio,
+    setUseMockAudio,
     debugImageGeneration,
     createVideo,
     handleSubmit,
@@ -76,7 +81,6 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
     setSelectedStyle,
     setCustomPrompt
   );
-
   return (
     <VideoContext.Provider
       value={{
@@ -95,7 +99,10 @@ export const VideoProvider = ({ children }: { children: ReactNode }) => {
         selectedStory,
         selectedStyle,
         customPrompt,
+        setCustomPrompt,
         debugImageGeneration,
+        useMockAudio,
+        setUseMockAudio,
 
         // Functions
         createVideo,

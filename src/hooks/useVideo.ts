@@ -32,6 +32,7 @@ const initialState: VideoState = {
   error: '',
   customPrompt: 'Create a short video about nature and wildlife',
   debugImageGeneration: [],
+  useMockAudio: false,
 };
 
 /**
@@ -65,6 +66,9 @@ export function useVideoCreation() {
     initialState.selectedStyle
   );
   const [customPrompt, setCustomPrompt] = useState(initialState.customPrompt);
+
+  // Mock settings
+  const [useMockAudio, setUseMockAudio] = useState(initialState.useMockAudio);
 
   // Debug state
   const [debugImageGeneration, setDebugImageGeneration] = useState<
@@ -206,7 +210,6 @@ export function useVideoCreation() {
 
     return await Promise.all(imagePromises);
   };
-
   /**
    * Generates audio for each scene in the video
    */
@@ -226,7 +229,11 @@ export function useVideoCreation() {
           );
           console.log(`Starting audio generation for scene ${i + 1}`);
 
-          const audioResult = await generateAudioFromText(scene.textContent);
+          // Pass the useMockAudio flag to the generateAudioFromText function
+          const audioResult = await generateAudioFromText(
+            scene.textContent,
+            useMockAudio
+          );
           const audioUrl =
             audioResult &&
             typeof audioResult === 'object' &&
@@ -362,7 +369,6 @@ export function useVideoCreation() {
       setShowLoadingModal(false);
     }
   };
-
   return {
     // State
     images,
@@ -393,8 +399,11 @@ export function useVideoCreation() {
     setSelectedStyle,
     customPrompt,
     setCustomPrompt,
+    useMockAudio,
+    setUseMockAudio,
     debugImageGeneration,
-    setDebugImageGeneration, // Functions
+    setDebugImageGeneration,
+    // Functions
     createVideo,
     generateImages,
     generateAudios,
