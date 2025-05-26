@@ -14,13 +14,13 @@ export function MockCaptionsToggle({
   setUseMockCaptions,
 }: MockCaptionsToggleProps) {
   return (
-    <div className='flex items-center space-x-2 my-4 p-4 border rounded-md bg-card'>
+    <div className='flex items-center space-x-2 my-3 p-3 sm:p-4 border rounded-md bg-card shadow-sm'>
       <Switch
         id='mock-captions-toggle'
         checked={useMockCaptions}
         onCheckedChange={setUseMockCaptions}
       />
-      <Label htmlFor='mock-captions-toggle' className='cursor-pointer'>
+      <Label htmlFor='mock-captions-toggle' className='cursor-pointer flex-1'>
         <div>
           <h4 className='font-medium text-sm'>Use Mock Captions</h4>
           <p className='text-xs text-muted-foreground'>

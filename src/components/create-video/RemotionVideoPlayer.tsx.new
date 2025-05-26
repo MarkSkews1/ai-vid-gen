@@ -1,0 +1,175 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import { Player, PlayerRef } from '@remotion/player';
+import { Scene } from '@/types/video';
+import { CaptionSettings as CaptionSettingsUI } from './CaptionSettings';
+import { SceneComposition } from './SceneComposition';
+
+interface RemotionVideoPlayerProps {
+  scene: Scene & {
+    captionSettings?: {
+      enabled: boolean;
+      style: {
+        backgroundColor: string;
+        textColor: string;
+        fontSize: string;
+      };
+    };
+  };
+}
+
+export default function RemotionVideoPlayer({ scene }: RemotionVideoPlayerProps) {
+  // Use caption settings from parent if provided, otherwise use defaults
+  const initialCaptionsEnabled = scene.captionSettings?.enabled ?? true;
+  const initialCaptionStyle = scene.captionSettings?.style ?? {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    textColor: 'white',
+    fontSize: 'text-lg',
+  };
+
+  const [currentTime, setCurrentTime] = useState(0);
+  const [showCaptions, setShowCaptions] = useState(initialCaptionsEnabled);
+  const [captionStyle, setCaptionStyle] = useState(initialCaptionStyle);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const playerRef = useRef<PlayerRef>(null);
+
+  // Calculate video duration from audio duration
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+
+  // Load audio duration
+  useEffect(() => {
+    if (!scene.audio) return;
+    
+    const audio = new Audio(scene.audio);
+    audio.addEventListener('loadedmetadata', () => {
+      setAudioDuration(audio.duration);
+    });
+    return () => {
+      audio.remove();
+    };
+  }, [scene.audio]);
+
+  // Update current time for captions when player is playing
+  useEffect(() => {
+    let timeUpdateInterval: NodeJS.Timeout | null = null;
+    
+    if (isPlaying && playerRef.current) {
+      timeUpdateInterval = setInterval(() => {
+        const currentFrame = playerRef.current?.getCurrentFrame() || 0;
+        setCurrentTime(currentFrame / 30);
+      }, 100);
+    }
+    
+    return () => {
+      if (timeUpdateInterval) {
+        clearInterval(timeUpdateInterval);
+      }
+    };
+  }, [isPlaying]);
+
+  return (
+    <div className="relative rounded-xl overflow-hidden border border-gray-200 shadow-md">
+      {/* Remotion Player */}
+      <div className="w-full aspect-video">
+        <Player
+          ref={playerRef}
+          component={() => (
+            <SceneComposition 
+              scene={scene}
+              currentTime={currentTime}
+              showCaptions={showCaptions}
+              captionStyle={captionStyle}
+            />
+          )}
+          durationInFrames={audioDuration ? Math.ceil(audioDuration * 30) : 300} // 30fps, default to 10 seconds
+          compositionWidth={1280}
+          compositionHeight={720}
+          fps={30}
+          style={{ width: '100%', height: '100%' }}
+          autoPlay={false}
+          loop
+          inputProps={{}}
+          controls
+        />
+      </div>
+
+      {/* Caption controls */}
+      {scene.captions && scene.captions.length > 0 && (
+        <div className='absolute top-2 right-2 flex items-center space-x-2 z-20'>
+          {/* Caption status indicator */}
+          <div className='text-xs bg-black/60 text-white px-2 py-1 rounded flex items-center'>
+            <span className='mr-2'>
+              Captions:{' '}
+              {showCaptions ? 'On' : 'Off'}
+            </span>
+
+            {/* Toggle button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowCaptions(!showCaptions);
+              }}
+              className={`w-8 h-5 rounded-full relative transition-colors ${
+                showCaptions ? 'bg-purple-500' : 'bg-gray-400'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                  showCaptions ? 'left-4' : 'left-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Scene details and controls */}
+      <div className='p-4 bg-white'>
+        <div className='mb-2 font-medium'>{scene.description || 'Scene'}</div>
+
+        {/* Audio controls - show separately for better control */}
+        {scene.audio && (
+          <audio
+            className='w-full'
+            controls
+            src={scene.audio}
+            onPlay={() => {
+              setIsPlaying(true);
+              if (playerRef.current) {
+                playerRef.current.play();
+              }
+            }}
+            onPause={() => {
+              setIsPlaying(false);
+              if (playerRef.current) {
+                playerRef.current.pause();
+              }
+            }}
+            onTimeUpdate={(e) => {
+              const audioTime = e.currentTarget.currentTime;
+              setCurrentTime(audioTime);
+              if (playerRef.current) {
+                const frame = Math.floor(audioTime * 30);
+                playerRef.current.seekTo(frame);
+              }
+            }}
+          />
+        )}
+
+        {/* Caption settings panel */}
+        {scene.captions && scene.captions.length > 0 && (
+          <div className='mt-4'>
+            <CaptionSettingsUI
+              showCaptions={showCaptions}
+              onToggleCaptions={setShowCaptions}
+              onStyleChange={setCaptionStyle}
+            />
+          </div>
+        )}
+
+        <div className='mt-2 text-sm text-gray-600'>{scene.textContent}</div>
+      </div>
+    </div>
+  );
+}

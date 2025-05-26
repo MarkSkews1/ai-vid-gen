@@ -14,13 +14,13 @@ export function MockAudioToggle({
   setUseMockAudio,
 }: MockAudioToggleProps) {
   return (
-    <div className='flex items-center space-x-2 my-4 p-4 border rounded-md bg-card'>
+    <div className='flex items-center space-x-2 my-3 p-3 sm:p-4 border rounded-md bg-card shadow-sm'>
       <Switch
         id='mock-audio-toggle'
         checked={useMockAudio}
         onCheckedChange={setUseMockAudio}
       />
-      <Label htmlFor='mock-audio-toggle' className='cursor-pointer'>
+      <Label htmlFor='mock-audio-toggle' className='cursor-pointer flex-1'>
         <div>
           <h4 className='font-medium text-sm'>Use Mock Audio</h4>
           <p className='text-xs text-muted-foreground'>
