@@ -16,5 +16,11 @@ console.log(
   'CLOUDINARY_API_SECRET:',
   process.env.CLOUDINARY_API_SECRET ? 'exists' : 'missing'
 );
+console.log(
+  'ASSEMBLYAI_API_KEY:',
+  process.env.ASSEMBLYAI_API_KEY
+    ? 'exists (length: ' + process.env.ASSEMBLYAI_API_KEY.length + ')'
+    : 'missing'
+);
 console.log('USE_MOCK_GEMINI:', process.env.USE_MOCK_GEMINI || 'not set');
 console.log('USE_MOCK_REPLICATE:', process.env.USE_MOCK_REPLICATE || 'not set');

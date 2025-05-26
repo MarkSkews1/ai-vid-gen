@@ -1,6 +1,13 @@
 'use server';
 import { AssemblyAI } from 'assemblyai';
 
+// Check if API key exists
+if (!process.env.ASSEMBLYAI_API_KEY) {
+  console.error(
+    'AssemblyAI API key is missing! Please add it to your environment variables.'
+  );
+}
+
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY!,
 });

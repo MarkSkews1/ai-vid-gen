@@ -5,10 +5,12 @@ const nextConfig: NextConfig = {
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     USE_MOCK_GEMINI: process.env.USE_MOCK_GEMINI,
+    ASSEMBLYAI_API_KEY: process.env.ASSEMBLYAI_API_KEY,
   },
   serverRuntimeConfig: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     USE_MOCK_GEMINI: process.env.USE_MOCK_GEMINI,
+    ASSEMBLYAI_API_KEY: process.env.ASSEMBLYAI_API_KEY,
   },
   // Ensure output is fully cleaned on build
   cleanDistDir: true,
