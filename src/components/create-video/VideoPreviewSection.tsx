@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { VideoData, Scene } from '@/types/video';
 import { VideoResponse } from './VideoResponse';
 import DebugImageGeneration from './DebugImageGeneration';
@@ -34,6 +34,9 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
   error,
 }) => {
   const { scenes } = useVideo();
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [showPreviewSection, setShowPreviewSection] = useState(true); // State to track preview section visibility
+
   const hasMediaScenes = useMemo(() => {
     const hasScenes = scenes.some((scene) => {
       const hasImage = scene.imageUrl && scene.imageUrl.trim() !== '';
@@ -94,59 +97,122 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
 
   return (
     <div className='w-full'>
-      <div className='mb-6 bg-card p-4 sm:p-6 rounded-lg border border-border shadow-sm'>
-        <h2 className='text-lg font-semibold mb-3'>Video Preview</h2>
-        <div className='text-muted-foreground text-sm'>
-          {hasMediaScenes
-            ? null
-            : 'Your generated video will appear here after processing.'}
-        </div>
-        {/* Display first scene image if available */}
-        {firstMediaScene && firstMediaScene.imageUrl && (
-          <div className='mt-4'>
-            <div className='relative aspect-video w-full overflow-hidden rounded-lg border border-border'>
-              <Image
-                src={firstMediaScene.imageUrl}
-                alt={firstMediaScene.description || 'First scene image'}
-                fill
-                style={{ objectFit: 'cover' }}
-                className='rounded-lg'
-                unoptimized={true}
-                priority={true}
-                onError={(e) => {
-                  console.error(
-                    'Image failed to load:',
-                    firstMediaScene.imageUrl
-                  );
-                  // Replace with fallback image
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/images/fantasy.jpg'; // Use a fallback image from public folder
-                  target.style.objectFit = 'cover';
+      {showPreviewSection && (
+        <div className='mb-6 bg-card p-4 sm:p-6 rounded-lg border border-border shadow-sm'>
+          <h2 className='text-lg font-semibold mb-3'>Video Preview</h2>
+          {videoData?.title && (
+            <h3 className='text-md font-medium mb-2 text-primary'>
+              {videoData.title}
+            </h3>
+          )}
+          <div className='text-muted-foreground text-sm'>
+            {hasMediaScenes
+              ? null
+              : 'Your generated video will appear here after processing.'}
+          </div>
+          {/* Display first scene image if available */}
+          {firstMediaScene && firstMediaScene.imageUrl && (
+            <div className='mt-4'>
+              {' '}
+              <div
+                className='relative aspect-video w-full overflow-hidden rounded-lg border border-border cursor-pointer'
+                onClick={() => {
+                  if (sceneWithSettings?.audio) {
+                    setShowVideoPlayer(true);
+                    setShowPreviewSection(false);
+                  }
                 }}
-              />
-              {/* Add an invisible debug element that shows the URL in dev tools */}
-              <div className='hidden'>{`Debug URL: ${firstMediaScene.imageUrl}`}</div>
+              >
+                <Image
+                  src={firstMediaScene.imageUrl}
+                  alt={firstMediaScene.description || 'First scene image'}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  className='rounded-lg'
+                  unoptimized={true}
+                  priority={true}
+                  onError={(e) => {
+                    console.error(
+                      'Image failed to load:',
+                      firstMediaScene.imageUrl
+                    );
+                    // Replace with fallback image
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/fantasy.jpg'; // Use a fallback image from public folder
+                    target.style.objectFit = 'cover';
+                  }}
+                />
+
+                {/* Play button overlay */}
+                {sceneWithSettings?.audio && (
+                  <div className='absolute inset-0 flex items-center justify-center'>
+                    <div className='bg-black bg-opacity-50 rounded-full p-4 hover:bg-opacity-70 transition-all'>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='48'
+                        height='48'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='2'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        className='text-white'
+                      >
+                        <polygon points='5 3 19 12 5 21 5 3'></polygon>
+                      </svg>
+                    </div>
+                  </div>
+                )}
+
+                {/* Add an invisible debug element that shows the URL in dev tools */}
+                <div className='hidden'>{`Debug URL: ${firstMediaScene.imageUrl}`}</div>
+              </div>
+              <p className='mt-2 text-sm font-medium'>
+                {firstMediaScene.description ||
+                  firstMediaScene.textContent ||
+                  'No description available'}
+              </p>
             </div>
-            <p className='mt-2 text-sm font-medium'>
-              {firstMediaScene.description ||
-                firstMediaScene.textContent ||
-                'No description available'}
-            </p>
-          </div>
-        )}
-        {/* Display total duration if there are media scenes */}
-        {hasMediaScenes && (
-          <div className='mt-3 text-sm'>
-            <span className='font-medium'>Total video duration:</span>{' '}
-            {formatDuration(totalDuration)} ({totalDuration} seconds)
-          </div>
-        )}{' '}
-      </div>
+          )}
+          {/* Display total duration if there are media scenes */}
+          {hasMediaScenes && (
+            <div className='mt-3 text-sm'>
+              <span className='font-medium'>Total video duration:</span>{' '}
+              {formatDuration(totalDuration)} ({totalDuration} seconds)
+            </div>
+          )}{' '}
+        </div>
+      )}
 
       {/* Video Player Component */}
-      {firstMediaScene && (
+      {firstMediaScene && showVideoPlayer && (
         <div className='mt-6 bg-card p-4 sm:p-6 rounded-lg border border-border shadow-sm'>
-          <h3 className='text-lg font-semibold mb-3'>Video Player</h3>
+          <div className='flex justify-between items-center mb-3'>
+            <h3 className='text-lg font-semibold'>Video Player</h3>{' '}
+            <button
+              onClick={() => {
+                setShowVideoPlayer(false);
+                setShowPreviewSection(true);
+              }}
+              className='text-gray-500 hover:text-gray-700'
+            >
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <line x1='18' y1='6' x2='6' y2='18'></line>
+                <line x1='6' y1='6' x2='18' y2='18'></line>
+              </svg>
+            </button>
+          </div>
 
           {/* Only show the VideoPlayer if the scene has both image and audio */}
           {sceneWithSettings && sceneWithSettings.audio ? (
