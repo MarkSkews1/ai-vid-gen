@@ -28,6 +28,7 @@ export function StyleSelector({
           >
             {' '}
             <div className='w-full h-24 sm:h-28 md:h-32 overflow-hidden rounded-md relative'>
+              {' '}
               <Image
                 src={style.image}
                 alt={`${style.name} style`}
@@ -35,6 +36,7 @@ export function StyleSelector({
                 sizes='(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw'
                 className='object-cover'
                 priority={index < 4} // Load first 4 images with priority
+                unoptimized={true}
               />
               <div className='absolute inset-0 flex items-center justify-center'>
                 <div className='bg-black bg-opacity-50 px-2 py-1 rounded-md w-full text-center'>

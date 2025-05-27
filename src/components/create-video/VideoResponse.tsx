@@ -18,7 +18,7 @@ export function VideoResponse({ videoData, error }: VideoResponseProps) {
       )}
 
       {videoData && (
-        <div className='mt-4 p-4 bg-green-50 text-gray-700 rounded-md overflow-auto'>
+        <div className='p-4 bg-green-50 text-gray-700 rounded-md overflow-auto'>
           <h3 className='font-semibold mb-2'>AI Response:</h3>
           <div className='rounded-md bg-white p-4 border border-gray-200'>
             <JsonRenderer data={videoData} />

@@ -62,13 +62,27 @@ export async function generateImageAi(imagePrompt: string): Promise<string> {
     const mockEnvValue = process.env.USE_MOCK_REPLICATE;
     console.log('USE_MOCK_REPLICATE env value:', mockEnvValue);
     const useMockResponse = mockEnvValue === 'true';
-
     if (useMockResponse) {
       console.log('Using mock Replicate image for development');
       // Return a random mock image URL
       const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
       const mockImageUrl = mockImageUrls[randomIndex];
       console.log('Selected mock image URL:', mockImageUrl);
+
+      // Verify the mock URL is valid
+      try {
+        const response = await fetch(mockImageUrl, { method: 'HEAD' });
+        if (!response.ok) {
+          console.error(`Mock image URL returned status: ${response.status}`);
+          // Fallback to a local image if the mock URL fails
+          return '/images/fantasy.jpg';
+        }
+      } catch (error) {
+        console.error('Error checking mock image URL:', error);
+        // Fallback to a local image if fetch fails
+        return '/images/fantasy.jpg';
+      }
+
       return mockImageUrl;
     }
 

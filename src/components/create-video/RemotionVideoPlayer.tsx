@@ -21,20 +21,24 @@ interface RemotionVideoPlayerProps {
 export default function RemotionVideoPlayer({
   scene,
 }: RemotionVideoPlayerProps) {
-  const [duration, setDuration] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(5); // Default to 5 seconds
 
   // Calculate duration based on the last caption's end time
   useEffect(() => {
     if (scene.captions && scene.captions.length > 0) {
       const lastCaption = scene.captions[scene.captions.length - 1];
-      setDuration(Math.ceil(lastCaption.end / 1000)); // Convert ms to seconds
+      const calculatedDuration = Math.ceil(lastCaption.end / 1000); // Convert ms to seconds
+      setDuration(calculatedDuration > 0 ? calculatedDuration : 5); // Ensure positive duration
     }
   }, [scene.captions]);
+
+  // Ensure we always have a positive duration (minimum 5 seconds)
+  const videoDuration = Math.max(duration, 5);
 
   return (
     <Player
       component={SceneComposition}
-      durationInFrames={duration * 30} // 30 fps
+      durationInFrames={videoDuration * 30} // 30 fps
       compositionWidth={1280}
       compositionHeight={720}
       fps={30}

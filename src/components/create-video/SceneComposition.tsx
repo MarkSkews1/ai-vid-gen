@@ -38,6 +38,7 @@ export const SceneComposition: React.FC<SceneCompositionProps> = ({
 
   return (
     <div className='absolute inset-0 w-full h-full'>
+      {' '}
       {/* Background image */}
       {scene.imageUrl && (
         <Image
@@ -45,9 +46,9 @@ export const SceneComposition: React.FC<SceneCompositionProps> = ({
           alt={scene.description || 'Video scene'}
           fill
           className='object-cover'
+          unoptimized={true}
         />
       )}
-
       {/* Captions overlay */}
       {currentCaption && (
         <div

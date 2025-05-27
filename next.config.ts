@@ -12,6 +12,31 @@ const nextConfig: NextConfig = {
     USE_MOCK_GEMINI: process.env.USE_MOCK_GEMINI,
     ASSEMBLYAI_API_KEY: process.env.ASSEMBLYAI_API_KEY,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.replicate.delivery',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.cloudfront.net',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   // Ensure output is fully cleaned on build
   cleanDistDir: true,
   // Add transpilePackages to handle cloudinary

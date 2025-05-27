@@ -77,25 +77,16 @@ export function useVideoCreation() {
   const [debugImageGeneration, setDebugImageGeneration] = useState<
     DebugImageGeneration[]
   >(initialState.debugImageGeneration);
-
   /**
    * Creates a video script based on the provided prompt
+   * Note: UI state management (loading, etc.) should be handled by the calling function
    */
   const createVideo = async (promptContent: string): Promise<Scene[]> => {
     try {
-      setLoading(true);
-      setShowLoadingModal(true);
-      setLoadingModalMessage('Creating your video...');
-      setStatus('creating');
-      setError('');
-
-      setLoadingModalMessage('Generating script with AI...');
+      // No longer setting UI state here since handleSubmit already does it
       const result = await generateVideoScript(promptContent);
-
       if (result.success) {
         try {
-          setLoadingModalMessage('Processing AI response...');
-
           // Process the API response
           const {
             videoData: processedData,
@@ -112,33 +103,21 @@ export function useVideoCreation() {
 
           // Set the scenes if available
           setScenes(extractedScenes);
-          setStatus('completed');
-          setLoadingModalMessage(
-            'Script generated! Preparing to create images...'
-          );
 
           return extractedScenes;
         } catch (err) {
           console.warn('Failed to parse video data:', err);
           setError('Failed to process video data');
-          setStatus('error');
-          setLoadingModalMessage('Error: Failed to process video data');
-          return [];
+          throw new Error('Failed to process video data');
         }
       } else {
         setError(result.error || 'Failed to create video');
-        setStatus('error');
-        setLoadingModalMessage('Error: Failed to create video');
-        return [];
+        throw new Error(result.error || 'Failed to create video');
       }
     } catch (err) {
       console.error('Video creation error:', err);
       setError('An error occurred while creating the video');
-      setStatus('error');
-      setLoadingModalMessage('Error: An unexpected error occurred');
       return [];
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -316,7 +295,6 @@ export function useVideoCreation() {
 
     return updatedScenes;
   };
-
   /**
    * Updates scenes with generated image URLs
    */
@@ -324,36 +302,60 @@ export function useVideoCreation() {
     scenes: Scene[],
     imageUrls: string[]
   ): Scene[] => {
-    return scenes.map((scene, index) => ({
-      ...scene,
-      imageUrl: imageUrls[index] || '',
-    }));
-  };
+    console.log('Updating scenes with images. Image URLs:', imageUrls);
 
+    return scenes.map((scene, index) => {
+      const imageUrl = imageUrls[index] || '';
+      console.log(`Scene ${index + 1} image URL: ${imageUrl}`);
+
+      return {
+        ...scene,
+        imageUrl,
+      };
+    });
+  };
   /**
    * Submits the video creation request
    */
   const handleSubmit = async () => {
     try {
+      // Set initial loading state
       setLoading(true);
       setShowLoadingModal(true);
+      setStatus('creating');
+      setError('');
       setLoadingModalMessage('Generating video script...');
       console.log('Generating video script...');
+
       // Clear previous debug data
       setDebugImageGeneration([]);
 
       // 1. Create video script
-      const extractedScenes = await createVideo(
-        `Create a 30 second long ${
-          selectedStory || customPrompt
-        } video script. Include AI image prompt for each scene in ${selectedStyle} format. Provide the result in JSON format with 'imagePrompt' and 'textContent' fields.`
-      );
+      setLoadingModalMessage('Generating script with AI...');
+      let extractedScenes;
+      try {
+        extractedScenes = await createVideo(
+          `Create a 30 second long ${
+            selectedStory || customPrompt
+          } video script. Include AI image prompt for each scene in ${selectedStyle} format. Provide the result in JSON format with 'imagePrompt' and 'textContent' fields.`
+        );
+      } catch (error) {
+        setStatus('error');
+        setLoadingModalMessage(
+          `Error: ${
+            error instanceof Error ? error.message : 'Failed to create video'
+          }`
+        );
+        setLoading(false);
+        setShowLoadingModal(false);
+        return;
+      }
 
       // Use the returned scenes directly
-      const scenesToProcess = extractedScenes || [];
-
-      // Check if we have scenes after script generation
+      const scenesToProcess = extractedScenes || []; // Check if we have scenes after script generation
       if (!scenesToProcess.length) {
+        setStatus('error');
+        setError('No scenes were generated from the prompt');
         setLoading(false);
         setShowLoadingModal(false);
         console.log(
@@ -428,12 +430,12 @@ export function useVideoCreation() {
           setVideoData(updatedVideoDataWithCaptions);
           console.log('Updated videoData with captions');
         }
-
-        console.log('Video generation completed successfully');
         setLoadingModalMessage('Video assets generated successfully!');
+        setStatus('completed');
       } else {
         console.log('No scenes available for image generation');
         setLoadingModalMessage('No scenes available for image generation');
+        setStatus('error');
       }
     } catch (err) {
       console.error('Error during video creation:', err);
@@ -442,6 +444,7 @@ export function useVideoCreation() {
           err instanceof Error ? err.message : String(err)
         }`
       );
+      setStatus('error');
     } finally {
       setLoading(false);
       setShowLoadingModal(false);

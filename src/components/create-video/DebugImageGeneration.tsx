@@ -205,11 +205,13 @@ export default function DebugImageGeneration() {
                 </div>
                 {item.success && item.imageUrl && (
                   <div className='relative h-40 w-full mb-2 overflow-hidden rounded-md'>
+                    {' '}
                     <Image
                       src={item.imageUrl}
                       alt={`Scene ${item.sceneIndex + 1}`}
                       fill
                       className='object-cover'
+                      unoptimized={true}
                     />
                   </div>
                 )}{' '}
