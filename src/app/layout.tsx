@@ -5,7 +5,6 @@ import { ThemeProvider } from '@/components/theme-provider';
 import TopNav from '@/components/ui/nav/top-nav';
 import { AuthProvider } from '@/AuthProvider';
 import { VideoProvider } from '@/context/video';
-import { Video } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',

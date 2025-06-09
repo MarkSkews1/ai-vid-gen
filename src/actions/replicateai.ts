@@ -82,16 +82,8 @@ export async function generateImageAi(imagePrompt: string): Promise<string> {
         // Fallback to a local image if fetch fails
         return '/images/fantasy.jpg';
       }
-
       return mockImageUrl;
     }
-
-    // For testing - you can uncomment this to force mock images in development
-    // if (process.env.NODE_ENV === 'development') {
-    //   console.log('Forcing mock image in development mode');
-    //   const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
-    //   return mockImageUrls[randomIndex];
-    // }
 
     // 1. generate image using Replicate AI
     const input = {

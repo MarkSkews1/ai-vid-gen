@@ -1,6 +1,14 @@
 // API service functions for video-related operations
 
-import { Scene } from '@/types/video';
+interface ApiResponse {
+  data:
+    | string
+    | {
+        scenes?: unknown[];
+        title?: string;
+        [key: string]: unknown;
+      };
+}
 
 /**
  * Generates a video script based on the provided prompt
@@ -25,7 +33,7 @@ export async function generateVideoScript(promptContent: string) {
  * Process the video script response from the API
  * @param responseData The data returned from the API
  */
-export function processVideoScriptResponse(responseData: any) {
+export function processVideoScriptResponse(responseData: ApiResponse) {
   // Parse the response data if needed
   const parsedData =
     typeof responseData.data === 'string'

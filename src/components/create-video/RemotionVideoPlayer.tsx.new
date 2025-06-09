@@ -33,6 +33,7 @@ export default function RemotionVideoPlayer({ scene }: RemotionVideoPlayerProps)
   const [captionStyle, setCaptionStyle] = useState(initialCaptionStyle);
   const [isPlaying, setIsPlaying] = useState(false);
   const playerRef = useRef<PlayerRef>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Calculate video duration from audio duration
   const [audioDuration, setAudioDuration] = useState<number | null>(null);
@@ -40,12 +41,18 @@ export default function RemotionVideoPlayer({ scene }: RemotionVideoPlayerProps)
   // Load audio duration
   useEffect(() => {
     if (!scene.audio) return;
-    
     const audio = new Audio(scene.audio);
-    audio.addEventListener('loadedmetadata', () => {
-      setAudioDuration(audio.duration);
-    });
+    const onLoadedMetadata = () => {
+      // Only set duration if it's a valid, nonzero value
+      if (audio.duration && audio.duration > 0) {
+        setAudioDuration(audio.duration);
+      } else {
+        setAudioDuration(null);
+      }
+    };
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
     return () => {
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.remove();
     };
   }, [scene.audio]);
@@ -90,7 +97,7 @@ export default function RemotionVideoPlayer({ scene }: RemotionVideoPlayerProps)
           autoPlay={false}
           loop
           inputProps={{}}
-          controls
+          // controls removed: use only audio element for playback control
         />
       </div>
 
@@ -129,13 +136,17 @@ export default function RemotionVideoPlayer({ scene }: RemotionVideoPlayerProps)
         <div className='mb-2 font-medium'>{scene.description || 'Scene'}</div>
 
         {/* Audio controls - show separately for better control */}
-        {scene.audio && (
+        {scene.audio && audioDuration && audioDuration > 0 && (
           <audio
+            ref={audioRef}
             className='w-full'
             controls
             src={scene.audio}
+            // Ensure audio is not muted
+            muted={false}
             onPlay={() => {
               setIsPlaying(true);
+              // Only control Remotion player from audio, not the other way
               if (playerRef.current) {
                 playerRef.current.play();
               }

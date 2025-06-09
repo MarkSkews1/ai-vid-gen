@@ -69,7 +69,6 @@ export const RegexValidator: React.FC<RegexValidatorProps> = ({
   validationRule,
   onValidationChange,
   displayMessage = true,
-  className = '',
   messageClassName = '',
 }) => {
   const [isValid, setIsValid] = useState<boolean>(true);

@@ -35,10 +35,11 @@ const textColorOptions = [
 ];
 
 const fontSizeOptions = [
-  { label: 'Small', value: 'text-sm' },
-  { label: 'Medium', value: 'text-base' },
-  { label: 'Large', value: 'text-lg' },
-  { label: 'Extra Large', value: 'text-xl' },
+  { label: 'Small', value: 'text-base' },
+  { label: 'Medium', value: 'text-lg' },
+  { label: 'Large', value: 'text-xl' },
+  { label: 'Extra Large', value: 'text-2xl' },
+  { label: 'XXL', value: 'text-3xl' },
 ];
 
 export function CaptionSettings({

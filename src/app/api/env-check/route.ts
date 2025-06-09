@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   const envVars = {
     REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN
       ? `exists (length: ${process.env.REPLICATE_API_TOKEN.length})`

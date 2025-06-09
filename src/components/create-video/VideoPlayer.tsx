@@ -5,16 +5,7 @@ import RemotionVideoPlayer from './RemotionVideoPlayer';
 import { Scene } from '@/types/video';
 
 interface VideoPlayerProps {
-  scene: Scene & {
-    captionSettings?: {
-      enabled: boolean;
-      style: {
-        backgroundColor: string;
-        textColor: string;
-        fontSize: string;
-      };
-    };
-  };
+  scene: Scene;
 }
 
 // This component now uses the RemotionVideoPlayer instead of the custom implementation

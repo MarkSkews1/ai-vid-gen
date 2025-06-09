@@ -44,9 +44,7 @@ export async function createVideoAi(message: string): Promise<VideoResponse> {
     // Check if message contains 'Script...' and use default message instead
     const finalMessage = message.includes('Script...')
       ? defaultMessage
-      : message;
-
-    // Check if we should use mock response in development mode
+      : message; // Check if we should use mock response in development mode
     const mockEnvValue = process.env.USE_MOCK_GEMINI;
     console.log('USE_MOCK_GEMINI env value:', mockEnvValue);
     const useMockResponse = mockEnvValue === 'true';
@@ -56,11 +54,7 @@ export async function createVideoAi(message: string): Promise<VideoResponse> {
       return { success: true, data: mockResponse };
     }
 
-    // For testing - force use mock response (remove this in production)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Forcing mock response in development mode');
-      return { success: true, data: mockResponse };
-    }
+    // Removed forced development mode override
 
     // Check for API key in environment variables
     const apiKey = process.env.GEMINI_API_KEY;

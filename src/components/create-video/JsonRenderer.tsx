@@ -48,19 +48,65 @@ function SceneView({ scene, index }: SceneViewProps) {
     scene.audio
   ) {
     return (
-      <div className='mb-6'>
-        <h4 className='text-md font-semibold mb-2'>Scene {index + 1}</h4>
-        <VideoPlayer scene={scene as Scene} />
+      <div className='relative overflow-hidden bg-gradient-to-br from-card/60 via-card/40 to-background/20 backdrop-blur-sm border border-border/50 rounded-xl p-6 mb-6 shadow-lg'>
+        <div className='absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl' />
 
-        {/* Show the image prompt for context */}
-        {'imagePrompt' in scene && (
-          <div className='mt-4 border-l-4 border-green-400 pl-3 py-2 bg-green-50 rounded'>
-            <div className='font-medium mb-1'>Image Prompt:</div>
-            <div className='text-gray-700 whitespace-pre-wrap'>
-              {String(scene.imagePrompt)}
+        <div className='relative'>
+          <div className='flex items-center gap-3 mb-4'>
+            <div className='p-2 bg-primary/20 rounded-lg'>
+              <svg
+                className='w-5 h-5 text-primary'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+                />
+              </svg>
             </div>
+            <h4 className='text-lg font-semibold text-foreground'>
+              Scene {index + 1}
+            </h4>
           </div>
-        )}
+
+          <VideoPlayer scene={scene as Scene} />
+
+          {/* Show the image prompt for context */}
+          {'imagePrompt' in scene && (
+            <div className='mt-6 relative overflow-hidden bg-gradient-to-r from-emerald-50/80 via-green-50/60 to-emerald-100/70 backdrop-blur-sm border border-emerald-200/50 rounded-xl p-4'>
+              <div className='absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-emerald-200/30 to-transparent rounded-full blur-xl' />
+              <div className='relative'>
+                <div className='flex items-center gap-2 mb-3'>
+                  <div className='p-1.5 bg-emerald-500/20 rounded-lg'>
+                    <svg
+                      className='w-4 h-4 text-emerald-600'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                      />
+                    </svg>
+                  </div>
+                  <span className='font-semibold text-emerald-800'>
+                    Image Prompt
+                  </span>
+                </div>
+                <div className='text-emerald-700/90 text-sm leading-relaxed whitespace-pre-wrap'>
+                  {String(scene.imagePrompt)}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }

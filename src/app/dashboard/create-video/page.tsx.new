@@ -15,6 +15,8 @@ import DebugImageGeneration from '@/components/create-video/DebugImageGeneration
 import { MockAudioToggle } from '@/components/create-video/MockAudioToggle';
 import { MockCaptionsToggle } from '@/components/create-video/MockCaptionsToggle';
 import VideoPlayer from '@/components/create-video/VideoPlayer';
+import VideoList from '@/components/create-video/VideoList';
+import MultiSceneVideoPlayer from '@/components/create-video/MultiSceneVideoPlayer';
 
 export default function CreateVideoPage() {
   const {
@@ -67,11 +69,11 @@ export default function CreateVideoPage() {
           <VideoResponse videoData={videoData} error={error} />
           
           {/* Video Player Component */}
-          {videoData && videoData.scenes && videoData.scenes.length > 0 && 
-           videoData.scenes[0].imageUrl && videoData.scenes[0].audio && (
+          {videoData && videoData.scenes && videoData.scenes.length > 0 && (
             <div className="mt-6 bg-card p-4 sm:p-6 rounded-lg border border-border shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Video Player</h3>
-              <VideoPlayer scene={videoData.scenes[0]} />
+              {/* Use MultiSceneVideoPlayer for all scenes */}
+              <MultiSceneVideoPlayer scenes={videoData.scenes} />
             </div>
           )}
         </div>

@@ -382,29 +382,25 @@ export function useVideoCreation() {
           generatedImages
         );
         setScenes(updatedScenes); // 4. Update videoData with the new scenes containing image URLs
-        if (videoData) {
-          const updatedVideoData = {
-            ...videoData,
-            scenes: updatedScenes,
-          };
-          setVideoData(updatedVideoData);
-          console.log('Updated videoData with image URLs');
-        }
+        const updatedVideoData = {
+          title: videoData?.title || '',
+          ...(videoData?.metadata ? { metadata: videoData.metadata } : {}),
+          scenes: updatedScenes,
+        };
+        setVideoData(updatedVideoData);
+        console.log('Updated videoData with image URLs');
 
         // 5. Generate audio for each scene
         setLoadingModalMessage('Generating audio for scenes...');
         const scenesWithAudio = await generateAudios(updatedScenes); // 6. Update scenes with audio URLs
         setScenes(scenesWithAudio);
-
-        // 7. Update videoData with the new scenes containing audio URLs
-        if (videoData) {
-          const updatedVideoDataWithAudio = {
-            ...videoData,
-            scenes: scenesWithAudio,
-          };
-          setVideoData(updatedVideoDataWithAudio);
-          console.log('Updated videoData with audio URLs');
-        }
+        const updatedVideoDataWithAudio = {
+          title: videoData?.title || '',
+          ...(videoData?.metadata ? { metadata: videoData.metadata } : {}),
+          scenes: scenesWithAudio,
+        };
+        setVideoData(updatedVideoDataWithAudio);
+        console.log('Updated videoData with audio URLs');
 
         // 8. Generate captions for each scene with audio
         setLoadingModalMessage('Generating captions from audio...');
@@ -422,16 +418,13 @@ export function useVideoCreation() {
         setCaptions(allCaptions);
 
         // 11. Update videoData with the new scenes containing captions
-        if (videoData) {
-          const updatedVideoDataWithCaptions = {
-            ...videoData,
-            scenes: scenesWithCaptions,
-          };
-          setVideoData(updatedVideoDataWithCaptions);
-          console.log('Updated videoData with captions');
-        }
-        setLoadingModalMessage('Video assets generated successfully!');
-        setStatus('completed');
+        const updatedVideoDataWithCaptions = {
+          title: videoData?.title || '',
+          ...(videoData?.metadata ? { metadata: videoData.metadata } : {}),
+          scenes: scenesWithCaptions,
+        };
+        setVideoData(updatedVideoDataWithCaptions);
+        console.log('Updated videoData with captions');
       } else {
         console.log('No scenes available for image generation');
         setLoadingModalMessage('No scenes available for image generation');

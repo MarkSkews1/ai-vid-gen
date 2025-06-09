@@ -3,19 +3,10 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { VideoData, Scene } from '@/types/video';
 import { VideoResponse } from './VideoResponse';
 import DebugImageGeneration from './DebugImageGeneration';
-import MultiSceneVideoPlayer from './MultiSceneVideoPlayer';
+import VideoPlayer from './VideoPlayer';
 import { useVideo } from '@/context/video';
 import Image from 'next/image';
-import {
-  Play,
-  Clock,
-  Film,
-  Volume2,
-  Subtitles,
-  Loader2,
-  AlertTriangle,
-  Info,
-} from 'lucide-react';
+import { Play, Clock, Film, Volume2, Subtitles, Loader2, AlertTriangle, Info } from 'lucide-react';
 
 // Helper function to calculate scene duration based on captions
 const calculateSceneDuration = (scene: Scene): number => {
@@ -47,18 +38,19 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
   const { scenes, status } = useVideo();
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [showPreviewSection, setShowPreviewSection] = useState(true); // State to track preview section visibility
-
+  const [isTransitioning, setIsTransitioning] = useState(false); // New state for transition animations
+  
   // New state for loading animations
   const [loadingProgress, setLoadingProgress] = useState(0);
-
+  
   // Simulate loading progress when generating
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
+    
     if (status === 'creating') {
       setLoadingProgress(0);
       interval = setInterval(() => {
-        setLoadingProgress((prev) => {
+        setLoadingProgress(prev => {
           const newProgress = prev + Math.random() * 2;
           return newProgress > 95 ? 95 : newProgress; // Cap at 95% until actually complete
         });
@@ -66,7 +58,7 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
     } else if (status === 'completed') {
       setLoadingProgress(100);
     }
-
+    
     return () => {
       clearInterval(interval);
     };
@@ -84,7 +76,7 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
     console.log('Has media scenes:', hasScenes);
     return hasScenes;
   }, [scenes]); // Get the first scene with an image
-
+  
   const firstMediaScene = useMemo(() => {
     const scene = scenes.find(
       (scene) => scene.imageUrl && scene.imageUrl.trim() !== ''
@@ -112,7 +104,26 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
       0
     );
   }, [scenesWithDuration]);
+  
+  // Add default caption settings if scene has captions
+  const sceneWithSettings = useMemo(() => {
+    if (!firstMediaScene) return null;
 
+    return firstMediaScene.captions && firstMediaScene.captions.length > 0
+      ? {
+          ...firstMediaScene,
+          captionSettings: {
+            enabled: true,
+            style: {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              textColor: 'white',
+              fontSize: 'text-lg',
+            },
+          },
+        }
+      : firstMediaScene;
+  }, [firstMediaScene]);
+  
   return (
     <div className='w-full space-y-8'>
       {showPreviewSection && (
@@ -154,7 +165,7 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                 </h3>
               </div>
             )}
-
+            
             {!hasMediaScenes ? (
               <div className='aspect-video bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center p-8 animate-in fade-in-50 duration-500'>
                 {status === 'creating' ? (
@@ -165,26 +176,23 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                         <Loader2 className='w-10 h-10 text-primary animate-spin' />
                       </div>
                     </div>
-                    <h3 className='text-lg font-medium mb-2'>
-                      Creating Your Video
-                    </h3>
+                    <h3 className='text-lg font-medium mb-2'>Creating Your Video</h3>
                     <p className='text-muted-foreground max-w-md mb-6'>
-                      Please wait while we generate your video with AI. This may
-                      take a few moments.
+                      Please wait while we generate your video with AI. This may take a few moments.
                     </p>
                     <div className='w-64 h-2 bg-muted rounded-full overflow-hidden'>
-                      <div
+                      <div 
                         className='h-full bg-gradient-to-r from-primary via-primary to-accent rounded-full transition-all duration-300'
                         style={{ width: `${loadingProgress}%` }}
                       ></div>
                     </div>
                     <p className='text-xs text-muted-foreground mt-2'>
-                      {loadingProgress < 30
-                        ? 'Processing story...'
-                        : loadingProgress < 60
-                        ? 'Generating scenes...'
-                        : loadingProgress < 90
-                        ? 'Creating audio...'
+                      {loadingProgress < 30 
+                        ? 'Processing story...' 
+                        : loadingProgress < 60 
+                        ? 'Generating scenes...' 
+                        : loadingProgress < 90 
+                        ? 'Creating audio...' 
                         : 'Finalizing your video...'}
                     </p>
                   </div>
@@ -193,12 +201,10 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                     <div className='w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4 animate-pulse'>
                       <Film className='w-8 h-8 text-muted-foreground' />
                     </div>
-                    <h3 className='text-lg font-medium mb-2'>
-                      Ready to Create
-                    </h3>
+                    <h3 className='text-lg font-medium mb-2'>Ready to Create</h3>
                     <p className='text-muted-foreground max-w-md'>
-                      Your generated video will appear here after processing.
-                      Select your story and style to get started.
+                      Your generated video will appear here after processing. Select
+                      your story and style to get started.
                     </p>
                   </>
                 )}
@@ -212,11 +218,10 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
               firstMediaScene &&
               firstMediaScene.imageUrl && (
                 <div className='space-y-4'>
-                  {' '}
                   <div
                     className='relative aspect-video w-full overflow-hidden rounded-xl border border-border cursor-pointer group transition-all duration-300 hover:shadow-xl'
                     onClick={() => {
-                      if (scenes && scenes.length > 0) {
+                      if (sceneWithSettings?.audio) {
                         setShowVideoPlayer(true);
                         setShowPreviewSection(false);
                       }
@@ -240,24 +245,26 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                         target.style.objectFit = 'cover';
                       }}
                     />
-                    {/* Gradient overlay */}{' '}
+
+                    {/* Gradient overlay */}
                     <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+
                     {/* Play button overlay */}
-                    {scenes && scenes.length > 0 && (
+                    {sceneWithSettings?.audio && (
                       <div className='absolute inset-0 flex items-center justify-center'>
                         <div className='bg-black/70 backdrop-blur-sm rounded-full p-6 group-hover:bg-black/80 transition-all duration-300 group-hover:scale-110 shadow-lg'>
-                          <Play
-                            className='w-8 h-8 text-white ml-1'
+                          <Play 
+                            className='w-8 h-8 text-white ml-1' 
                             fill='white'
                           />
                         </div>
                       </div>
                     )}
+
                     {/* Status indicator */}
                     <div className='absolute top-4 left-4'>
-                      {' '}
                       <div className='bg-black/70 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white font-medium flex items-center gap-2'>
-                        {scenes && scenes.some((scene) => scene.audio) ? (
+                        {sceneWithSettings?.audio ? (
                           <>
                             <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse'></span>
                             Ready to Play
@@ -269,26 +276,25 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                           </>
                         )}
                       </div>
-                    </div>{' '}
+                    </div>
+                    
                     {/* Media info badges */}
                     <div className='absolute bottom-4 left-4 flex gap-2'>
-                      {scenes && scenes.some((scene) => scene.audio) && (
+                      {sceneWithSettings?.audio && (
                         <div className='bg-black/70 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white font-medium flex items-center gap-1'>
                           <Volume2 className='w-3 h-3' />
                           Audio
                         </div>
                       )}
-                      {scenes &&
-                        scenes.some(
-                          (scene) => scene.captions && scene.captions.length > 0
-                        ) && (
-                          <div className='bg-black/70 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white font-medium flex items-center gap-1'>
-                            <Subtitles className='w-3 h-3' />
-                            Captions
-                          </div>
-                        )}
+                      {sceneWithSettings?.captions && sceneWithSettings.captions.length > 0 && (
+                        <div className='bg-black/70 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white font-medium flex items-center gap-1'>
+                          <Subtitles className='w-3 h-3' />
+                          Captions
+                        </div>
+                      )}
                     </div>
                   </div>
+
                   <div className='bg-muted/50 backdrop-blur-sm rounded-lg p-4 border border-border/30'>
                     <p className='text-sm font-medium text-foreground leading-relaxed'>
                       {firstMediaScene.description ||
@@ -302,15 +308,14 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
           </div>
         </div>
       )}
-
+      
       {/* Video Player Component */}
-      {scenes && scenes.length > 0 && showVideoPlayer && (
+      {firstMediaScene && showVideoPlayer && (
         <div className='bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 shadow-lg animate-in slide-in-from-top-2 duration-300'>
           <div className='flex justify-between items-center mb-4'>
-            {' '}
             <h3 className='text-xl font-semibold text-foreground flex items-center gap-2'>
               <Film className='w-5 h-5 text-primary' />
-              Full Video Player
+              Video Player
             </h3>
             <button
               onClick={() => {
@@ -318,7 +323,7 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                 setShowPreviewSection(true);
               }}
               className='p-2 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors duration-200'
-              aria-label='Close video player'
+              aria-label="Close video player"
             >
               <svg
                 xmlns='http://www.w3.org/2000/svg'
@@ -336,10 +341,11 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                 <line x1='6' y1='6' x2='18' y2='18'></line>
               </svg>
             </button>
-          </div>{' '}
-          {scenes && scenes.length > 0 ? (
+          </div>
+
+          {sceneWithSettings && sceneWithSettings.audio ? (
             <div className='ring-1 ring-border/40 rounded-xl overflow-hidden shadow-lg'>
-              <MultiSceneVideoPlayer scenes={scenes} />
+              <VideoPlayer scene={sceneWithSettings} />
             </div>
           ) : (
             <div className='bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800'>
@@ -367,10 +373,10 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
           )}
         </div>
       )}
-
+      
       {/* Debug Images Section */}
       <DebugImageGeneration />
-
+      
       {/* Scene durations section - enhanced design */}
       {hasMediaScenes && scenesWithDuration.length > 0 && (
         <div className='bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg overflow-hidden transform transition-all hover:shadow-xl'>
@@ -467,7 +473,9 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                         )}
                       </div>
                       <div className='flex items-center gap-2'>
-                        <Clock className='w-4 h-4 text-muted-foreground' />
+                        <Clock
+                          className='w-4 h-4 text-muted-foreground'
+                        />
                         <span className='bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium'>
                           {formatDuration(scene.duration)}
                         </span>
@@ -480,7 +488,9 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                     </p>
                     {scene.captions && (
                       <div className='flex items-center gap-1 text-xs text-muted-foreground'>
-                        <Subtitles className='w-3 h-3' />
+                        <Subtitles
+                          className='w-3 h-3'
+                        />
                         {scene.captions.length} caption
                         {scene.captions.length !== 1 ? 's' : ''}
                       </div>
@@ -492,14 +502,14 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
           </details>
         </div>
       )}
-
+      
       {/* Error Display */}
       {error && (
         <div className='bg-destructive/10 border border-destructive/20 rounded-xl p-6 shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-top-2 duration-500 relative overflow-hidden'>
           {/* Animated background patterns */}
           <div className='absolute inset-0 bg-gradient-to-r from-destructive/5 to-transparent opacity-50'></div>
           <div className='absolute -top-10 -right-10 w-40 h-40 bg-destructive/10 rounded-full blur-3xl animate-pulse'></div>
-
+          
           <div className='relative z-10'>
             <div className='flex items-center gap-3 mb-4'>
               <div className='p-3 bg-destructive/20 rounded-xl ring-4 ring-destructive/10 relative'>
@@ -507,21 +517,15 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
                 <span className='absolute top-0 right-0 w-2 h-2 bg-destructive rounded-full animate-ping'></span>
               </div>
               <div>
-                <h4 className='text-lg font-bold text-destructive'>
-                  Error Processing Your Video
-                </h4>
-                <p className='text-destructive/80 text-sm'>
-                  We encountered an issue while creating your video
-                </p>
+                <h4 className='text-lg font-bold text-destructive'>Error Processing Your Video</h4>
+                <p className='text-destructive/80 text-sm'>We encountered an issue while creating your video</p>
               </div>
             </div>
-
+            
             <div className='bg-destructive/5 p-4 rounded-lg border border-destructive/20 hover:border-destructive/30 transition-colors duration-300 hover:bg-destructive/10'>
-              <p className='text-destructive text-sm font-medium leading-relaxed'>
-                {error}
-              </p>
+              <p className='text-destructive text-sm font-medium leading-relaxed'>{error}</p>
             </div>
-
+            
             <div className='mt-4 flex items-center gap-2'>
               <Info className='w-4 h-4 text-destructive/70' />
               <p className='text-xs text-destructive/70'>
@@ -531,7 +535,7 @@ export const VideoPreviewSection: React.FC<VideoPreviewSectionProps> = ({
           </div>
         </div>
       )}
-
+      
       {/* Video Response Component - Enhanced collapsible design */}
       {videoData && (
         <div className='bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg overflow-hidden'>

@@ -17,4 +17,6 @@ export const initialState: VideoState = {
   error: '',
   customPrompt: 'Create a short video about nature and wildlife',
   debugImageGeneration: [],
+  useMockAudio: false,
+  useMockCaptions: false,
 };

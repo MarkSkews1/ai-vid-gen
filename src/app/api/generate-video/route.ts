@@ -70,9 +70,7 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Script is required' },
         { status: 400 }
       );
-    }
-
-    // Check if we should use mock response in development mode
+    } // Check if we should use mock response in development mode
     const mockEnvValue = process.env.USE_MOCK_GEMINI;
     console.log('API route - USE_MOCK_GEMINI env value:', mockEnvValue);
     const useMockResponse = mockEnvValue === 'true';
@@ -82,11 +80,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, data: mockResponse });
     }
 
-    // For testing - force use mock response in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API route - Forcing mock response in development mode');
-      return NextResponse.json({ success: true, data: mockResponse });
-    }
+    // Removed forced development mode override that was causing issues
+    // The mock response should only be used when USE_MOCK_GEMINI=true
 
     // Check for API key in environment variables
     const apiKey = process.env.GEMINI_API_KEY;

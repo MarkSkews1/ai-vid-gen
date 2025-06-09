@@ -21,7 +21,7 @@ export function VideoCaptions({
   style = {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     textColor: 'white',
-    fontSize: 'text-lg',
+    fontSize: 'text-xl',
   },
 }: VideoCaptionsProps) {
   const { captions: globalCaptions } = useVideo();
